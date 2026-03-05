@@ -1,39 +1,69 @@
 <script lang="ts">
+import AtheumLogo from "$lib/components/shared/AtheumLogo.svelte";
+import Button from "$lib/components/shared/Button.svelte";
+import Nav from "$lib/components/header/Nav.svelte";
+import MobileNav from "$lib/components/header/MobileNav.svelte";
 
+import { getUserState } from "$lib/state/user-state.svelte";
+
+let { scrollToSection } = $props();
+
+let isMobileMenuOpen = $state(false);
+
+let userContext = getUserState();
+let { user } = $derived(userContext);
+
+let headerNode: HTMLElement | null = $state(null);
+let scrolled = $state(false);
+
+const handleOutsideClick = (e: MouseEvent) => {
+    if (isMobileMenuOpen && headerNode && !headerNode.contains(e.target as Node)) {
+        isMobileMenuOpen = false;
+    }
+};
+
+$effect(() => {
+    const handleScroll = () => {
+        scrolled = window.scrollY > 20;
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
-<header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+<svelte:window onclick={handleOutsideClick} />
+
+<header 
+    bind:this={headerNode} 
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 {(scrolled || isMobileMenuOpen) && 'bg-[#fdfaf6]/80 backdrop-blur-md shadow-md'} {(!scrolled && !isMobileMenuOpen) && 'bg-transparent'}"
+>
     <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-            <div class="p-1.5 rounded-[10px] transition-colors bg-[#1a232e]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-4 h-4 text-[#fdfaf6]" aria-hidden="true">
-                    <path d="m16 6 4 14"></path><path d="M12 6v14"></path>
-                    <path d="M8 8v12"></path><path d="M4 4v16"></path>
-                </svg>
-            </div>
-            <span class="font-serif font-bold text-[#1a232e] text-lg tracking-tight">Atheum</span>
-        </div>
-        <nav class="hidden md:flex items-center gap-1">
-            <a href="#features" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all">Features</a>
-            <a href="#how-it-works" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all">How It Works</a>
-            <a href="#pricing" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all">Pricing</a>
-            <a href="#faq" class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all">FAQ</a>
-        </nav>
+        <AtheumLogo />
+        <Nav {scrollToSection} />
         <div class="flex items-center gap-2">
-            <a href="/login" class="hidden md:flex items-center gap-2 text-[#1a232e] px-4 py-2.5 rounded-[14px] font-bold text-sm hover:bg-[#1a232e]/8 transition-all border border-[#1a232e]/15">Sign In</a>
-            <a href="/sign-up" class="hidden md:flex items-center gap-2 bg-[#1a232e] text-white px-5 py-2.5 rounded-[14px] font-bold text-sm hover:bg-[#2d3b4b] transition-all shadow-sm">Get Started
+            <Button href="/login" variant="outline" class="hidden md:flex px-4!">Sign In</Button>
+            <Button href="/sign-up" variant="primary" class="hidden md:flex">Get Started
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-3.5 h-3.5" aria-hidden="true">
                     <path d="M5 12h14"></path>
                     <path d="m12 5 7 7-7 7"></path>
                 </svg>
-            </a>
-            <button class="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg" aria-label="Toggle menu">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5" aria-hidden="true">
-                    <path d="M4 12h16"></path>
-                    <path d="M4 18h16"></path>
-                    <path d="M4 6h16"></path>
-                </svg>
-            </button>
+            </Button>
+            <Button variant="ghost" size="icon" class="lg:hidden" aria-label="Toggle menu" onclick={(e: MouseEvent) => { e.stopPropagation(); isMobileMenuOpen = !isMobileMenuOpen; }}>
+                {#if isMobileMenuOpen}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x w-5 h-5" aria-hidden="true">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu w-5 h-5" aria-hidden="true">
+                        <path d="M4 12h16"></path>
+                        <path d="M4 18h16"></path>
+                        <path d="M4 6h16"></path>
+                    </svg>
+                {/if}
+            </Button>
         </div>
     </div>
+    
+    <MobileNav bind:isOpen={isMobileMenuOpen} {scrollToSection} />
 </header>
