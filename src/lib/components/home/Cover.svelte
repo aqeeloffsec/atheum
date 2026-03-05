@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import Button from "$lib/components/shared/Button.svelte";
     import gsap from "gsap";
-    import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
+    import ScrollTrigger from "gsap/ScrollTrigger";
 
     let sectionRef = $state<HTMLElement>();
     let badgeRef = $state<HTMLElement>();
