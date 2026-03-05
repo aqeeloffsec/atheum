@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { gsap } from 'gsap';
-    //import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-	import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
+	import gsap from 'gsap';
+    import ScrollToPlugin from 'gsap/ScrollToPlugin';
+	//import { gsap } from 'gsap/dist/gsap';
+	//import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
 
 	import Header from '$lib/components/header/Header.svelte';
 	import Footer from '$lib/components/footer/Footer.svelte';
