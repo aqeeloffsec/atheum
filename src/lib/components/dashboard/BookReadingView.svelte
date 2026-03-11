@@ -19,31 +19,36 @@
     let pages: HTMLCanvasElement[] = $state([]);
 
     async function loadPdf() {
+
         if (!pdfjs || !book.file_url) {
-            error = !book.file_url ? "No PDF file associated with this book." : "Reader not initialized.";
-            loading = false;
-            return;
+        error = !book.file_url ? "No PDF file associated with this book." : "Reader not initialized.";
+        loading = false;
+        return;
+    }
+
+    try {
+        let pdfUrl = book.file_url;
+
+        if (!book.file_url.startsWith('http')) {
+            // FIX: Remove leading slash if it exists
+            const storagePath = book.file_url.replace(/^\/+/, '');
+            
+            console.log("Fetching from bucket 'book-pdfs' with path:", storagePath);
+            
+            const { data, error: urlError } = await userContext.supabase!.storage
+                .from('book-pdfs')
+                .createSignedUrl(storagePath, 3600);
+
+            if (urlError) {
+                // This error specifically triggers if the file isn't found
+                throw new Error(`Supabase says: ${urlError.message}. Double-check that "${storagePath}" exists in the 'book-pdfs' bucket.`);
+            }
+            pdfUrl = data.signedUrl;
         }
 
-        try {
-            let pdfUrl = book.file_url;
-
-            // 1. Get a signed URL for the PDF if it's not already an absolute URL
-            if (!book.file_url.startsWith('http://') && !book.file_url.startsWith('https://')) {
-                console.log("Attempting to get signed URL for file:", book.file_url);
-                
-                const { data, error: urlError } = await userContext.supabase!.storage
-                    .from('book-pdfs')
-                    .createSignedUrl(book.file_url, 3600);
-
-                if (urlError) throw new Error(`Storage URL error (${urlError.message}) for path: ${book.file_url}`);
-                pdfUrl = data.signedUrl;
-            }
-
-            // 2. Load the PDF document
-            const loadingTask = pdfjs.getDocument(pdfUrl);
-            const pdf = await loadingTask.promise;
-            totalPages = pdf.numPages;
+        const loadingTask = pdfjs.getDocument(pdfUrl);
+        const pdf = await loadingTask.promise;
+        totalPages = pdf.numPages;
 
             // 3. Render all pages to canvases
             const canvasPromises = [];
@@ -122,7 +127,8 @@
                 ]);
 
                 pdfjs = pdfjsLib;
-                pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+                pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+                //pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
                 // Handle CommonJS / ESM interop for page-flip
                 PageFlipClass = pageFlipLib.PageFlip || pageFlipLib.default?.PageFlip || pageFlipLib.default;
