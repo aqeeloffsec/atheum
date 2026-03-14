@@ -33,17 +33,18 @@
             // FIX: Remove leading slash if it exists
             const storagePath = book.file_url.replace(/^\/+/, '');
             
-            console.log("Fetching from bucket 'book-pdfs' with path:", storagePath);
+            console.log("Downloading from bucket 'book-pdfs' with path:", storagePath);
             
-            const { data, error: urlError } = await userContext.supabase!.storage
+            const { data: blob, error: downloadError } = await userContext.supabase!.storage
                 .from('book-pdfs')
-                .createSignedUrl(storagePath, 3600);
+                .download(storagePath);
 
-            if (urlError) {
-                // This error specifically triggers if the file isn't found
-                throw new Error(`Supabase says: ${urlError.message}. Double-check that "${storagePath}" exists in the 'book-pdfs' bucket.`);
+            if (downloadError) {
+                console.error("Storage Download Error:", downloadError);
+                throw new Error(`Supabase RLS Error: ${downloadError.message}. Please ensure you have added a 'SELECT' policy for the 'book-pdfs' bucket in Supabase Storage so users can read files.`);
             }
-            pdfUrl = data.signedUrl;
+            
+            pdfUrl = URL.createObjectURL(blob);
         }
 
         const loadingTask = pdfjs.getDocument(pdfUrl);

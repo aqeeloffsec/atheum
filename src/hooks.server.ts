@@ -32,6 +32,19 @@ const supabase: Handle = async ({ event, resolve }) => {
         return { session, user };
     };
 
+    event.locals.getSubscription = async () => {
+        const { session } = await event.locals.safeGetSession();
+        if (!session) return null;
+
+        const { data: subscription } = await event.locals.supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+
+        return subscription;
+    };
+
     return resolve(event, {
         filterSerializedResponseHeaders(name) {
             return name === 'content-range' || name === 'x-supabase-api-version'
@@ -43,6 +56,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
     const { session, user } = await event.locals.safeGetSession();
     event.locals.session = session;
     event.locals.user = user;
+    event.locals.subscription = await event.locals.getSubscription();
 
     const { pathname } = event.url;
 

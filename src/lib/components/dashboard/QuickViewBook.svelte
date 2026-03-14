@@ -1,13 +1,27 @@
 <script lang="ts">
     import { getUserState } from "$lib/state/user-state.svelte";
     import { fly, fade } from "svelte/transition";
+    import { enhance } from "$app/forms";
+    import { invalidateAll } from "$app/navigation";
 
     let userContext = getUserState();
     let book = $derived(userContext.selectedBook);
+    let isLiking = $state(false);
+    let isDeleting = $state(false);
 
     function close() {
         userContext.isQuickViewOpen = false;
         userContext.selectedBook = null;
+    }
+
+    async function handleLike() {
+        if (!book || isLiking) return;
+        isLiking = true;
+        try {
+            await userContext.toggleFavorite(book.id, book.is_favorite);
+        } finally {
+            isLiking = false;
+        }
     }
 </script>
 
@@ -40,20 +54,50 @@
                     </svg>
                 </button>
                 <div class="flex gap-3">
-                    <button aria-label="Like Book" class="p-2.5 rounded-xl border transition-all border-gray-200 text-gray-400 hover:text-gray-600 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-5 h-5" aria-hidden="true">
+                    <button 
+                        onclick={handleLike} 
+                        disabled={isLiking}
+                        aria-label="Like Book" 
+                        class="p-2.5 rounded-xl border transition-all cursor-pointer {book.is_favorite ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:text-gray-600'}"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-5 h-5 {book.is_favorite ? 'fill-red-500' : ''}" aria-hidden="true">
                             <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path>
                         </svg>
                     </button>
-                    <button aria-label="Delete Book" class="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2 lucide-trash-2 w-5 h-5" aria-hidden="true">
-                            <path d="M10 11v6"></path>
-                            <path d="M14 11v6"></path>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                            <path d="M3 6h18"></path>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                    </button>
+                    <form 
+                        method="POST" 
+                        action="/dashboard?/deleteBook" 
+                        use:enhance={() => {
+                            isDeleting = true;
+                            return async ({ result, update }) => {
+                                if (result.type === 'success') {
+                                    close();
+                                    await invalidateAll();
+                                }
+                                isDeleting = false;
+                                await update();
+                            };
+                        }}
+                    >
+                        <input type="hidden" name="id" value={book.id} />
+                        {#if book.file_url}
+                            <input type="hidden" name="file_url" value={book.file_url} />
+                        {/if}
+                        <button 
+                            type="submit" 
+                            disabled={isDeleting}
+                            aria-label="Delete Book" 
+                            class="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2 lucide-trash-2 w-5 h-5 {isDeleting ? 'animate-pulse' : ''}" aria-hidden="true">
+                                <path d="M10 11v6"></path>
+                                <path d="M14 11v6"></path>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                <path d="M3 6h18"></path>
+                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
             

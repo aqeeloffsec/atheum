@@ -11,9 +11,10 @@
 	let {session, supabase} = $derived(data);
 
 	let userState = setUserState({
-		session: data.session,
-        supabase: data.supabase,
-        user: data.user
+		get session() { return data.session; },
+        get supabase() { return data.supabase; },
+        get user() { return data.user; },
+        get subscription() { return (data as any).subscription; }
 	});
 
 	$effect(() => {

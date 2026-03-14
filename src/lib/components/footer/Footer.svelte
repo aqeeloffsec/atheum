@@ -22,9 +22,6 @@ import AtheumLogo from "$lib/components/shared/AtheumLogo.svelte";
                     <li>
                         <a href="/" class="text-sm text-gray-500 hover:text-[#1a232e] transition-colors">Pricing</a>
                     </li>
-                    <li>
-                        <a href="/" class="text-sm text-gray-500 hover:text-[#1a232e] transition-colors">Changelog</a>
-                    </li>
                 </ul>
             </div>
             <div>

@@ -4,11 +4,15 @@
     import Button from '$lib/components/shared/Button.svelte';
 
     import { navigationState, type NavigationState } from '$lib/state/navigation-state.svelte';
+    import { getUserState } from "$lib/state/user-state.svelte";
 
     let { isOpen = $bindable(false), scrollToSection } = $props<{
         isOpen: boolean;
         scrollToSection: (element: HTMLElement | null) => void;
     }>();
+
+    let userContext = getUserState();
+    let user = $derived(userContext.user);
 
     let navContainer: HTMLElement | null = $state(null);
     let navContent: HTMLElement | null = $state(null);
@@ -67,8 +71,12 @@
             </button>
         {/each}
         <div class="md:hidden flex flex-wrap gap-2 pt-2">
-            <Button href="/login" variant="outline" class="flex-1 text-center">Sign In</Button>
-            <Button href="/sign-up" variant="primary" class="flex-1 text-center">Get Started</Button>
+            {#if user}
+                <Button href="/dashboard" variant="primary" class="flex-1 text-center">Go to Dashboard</Button>
+            {:else}
+                <Button href="/login" variant="outline" class="flex-1 text-center">Sign In</Button>
+                <Button href="/sign-up" variant="primary" class="flex-1 text-center">Get Started</Button>
+            {/if}
         </div>
     </div>
 </div>

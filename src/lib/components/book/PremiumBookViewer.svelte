@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import type { PageFlip, PageFlipEvent } from 'page-flip';
 	import PremiumPage from './PremiumPage.svelte';
 	import { fade } from 'svelte/transition';

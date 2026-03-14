@@ -11,7 +11,9 @@
 	import { navigationState } from "$lib/state/navigation-state.svelte";
 
 	const navState = navigationState;
+	let { data } = $props();
 	
+	let activePlan = $derived(data.subscription?.plan_id || 'free');
 </script>
 
 <Cover/>
@@ -24,7 +26,7 @@
 </div>
 <Testimonials />
 <div bind:this={navState.pricing}>
-	<Pricing />
+	<Pricing currentPlan={activePlan} />
 </div>
 <div bind:this={navState.faq}>
 	<Faq />
