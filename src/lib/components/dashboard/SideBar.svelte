@@ -107,6 +107,7 @@
                     </svg>
                 {/if}
             </button>
+            <!--
             <a href="/dashboard/generate" class="flex items-center w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-amber-400 hover:text-amber-300 hover:bg-amber-400/10">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles w-5 h-5 text-amber-500 group-hover:text-amber-400" aria-hidden="true">
                     <path d="M12 3v18"></path>
@@ -116,6 +117,7 @@
                 </svg>
                 <span class="font-medium">Generate Ebook</span>
             </a>
+            -->
             <button 
                 class="flex items-center w-full gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-gray-400 hover:text-white hover:bg-white/5"
             >

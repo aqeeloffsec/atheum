@@ -4,7 +4,7 @@
     import { PUBLIC_STRIPE_PUBLISHABLE_KEY } from "$env/static/public";
     import { fade } from 'svelte/transition';
     import { invalidateAll } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
     import { Elements, PaymentElement } from 'svelte-stripe';
 
@@ -26,8 +26,8 @@
 
     // If Stripe redirects us after successful 3DS Authentication, we need to automatically verify!
     $effect(() => {
-        const verifySubId = $page.url.searchParams.get('verify_sub_id');
-        const redirectStatus = $page.url.searchParams.get('redirect_status');
+        const verifySubId = page.url.searchParams.get('verify_sub_id');
+        const redirectStatus = page.url.searchParams.get('redirect_status');
         
         if (verifySubId && redirectStatus === 'succeeded' && !paymentSuccess) {
             paymentSuccess = true;
