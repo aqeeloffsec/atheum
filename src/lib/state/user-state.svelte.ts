@@ -24,6 +24,9 @@ export class UserState {
     selectedBook = $state<any>(null);
     isQuickViewOpen = $state(false);
     
+    isSidebarCollapsed = $state(false);
+    isMobileMenuOpen = $state(false);
+    
     // Filter states
     activeFilter = $state('All Books');
     activeGenre = $state('All Genres');

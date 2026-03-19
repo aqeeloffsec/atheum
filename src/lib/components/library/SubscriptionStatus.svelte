@@ -5,12 +5,13 @@
         PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY, 
         PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY
     } from "$env/static/public";
+    import { goto } from '$app/navigation';
 
     let { subscription } = $props<{ subscription: any }>();
     let isPortalLoading = $state(false);
 
     function handleUpgradeRoute() {
-        window.location.href = '/dashboard/pricing';
+        goto('/library/pricing');
     }
 
     const planName = $derived(() => {
@@ -34,7 +35,7 @@
             const response = await fetch('/api/stripe/portal', { method: 'POST' });
             const data = await response.json();
             if (data.url) {
-                window.location.href = data.url;
+                goto(data.url);
             } else {
                 alert(data.error || 'Failed to open billing portal');
             }

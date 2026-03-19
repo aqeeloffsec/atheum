@@ -1,10 +1,14 @@
 <script lang="ts">
+import { enhance } from "$app/forms";
+
 import AtheumLogo from "$lib/components/shared/AtheumLogo.svelte";
 import Button from "$lib/components/shared/Button.svelte";
 import Nav from "$lib/components/header/Nav.svelte";
 import MobileNav from "$lib/components/header/MobileNav.svelte";
 
 import { getUserState } from "$lib/state/user-state.svelte";
+
+let loadingLogout = $state(false);
 
 let { scrollToSection } = $props();
 
@@ -61,12 +65,59 @@ $effect(() => {
                     {/if}
                 </div>
                 
-                <Button href="/dashboard" variant="primary" class="hidden md:flex">Go to Dashboard
+                <Button href="/library" variant="primary" class="hidden md:flex">Go to Library
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-3.5 h-3.5" aria-hidden="true">
                         <path d="M5 12h14"></path>
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
                 </Button>
+
+                <form method="POST" action="/logout" use:enhance={() => {
+                        loadingLogout = true;
+                        return async ({ update }) => {
+                            await update();
+                            loadingLogout = false;
+                        };
+                    }}>
+                        <Button type="submit" disabled={loadingLogout} variant="outline" class="hidden md:flex px-4!">{#if !loadingLogout}
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    width="24" 
+                                    height="24" 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    stroke="currentColor"
+                                    stroke-width="2" 
+                                    stroke-linecap="round" 
+                                    stroke-linejoin="round" 
+                                    class="lucide lucide-log-out w-4 h-4" 
+                                    aria-hidden="true"
+                                >
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                    <polyline points="16 17 21 12 16 7" />
+                                    <line x1="21" x2="9" y1="12" y2="12" />
+                                </svg>
+                                <span class="hidden sm:inline">Logout</span>
+                            {:else}
+                                Logging out...
+                                <svg 
+                                    xmlns="http://www.w3.org/2000/svg" 
+                                    width="24" 
+                                    height="24" 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    stroke-width="2" 
+                                    stroke-linecap="round" 
+                                    stroke-linejoin="round" 
+                                    class="animate-spin w-4 h-4" 
+                                    aria-hidden="true"
+                                >
+                                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                </svg>
+                            {/if}
+                        </Button>
+                    </form>
             {:else}
                 <Button href="/login" variant="outline" class="hidden md:flex px-4!">Sign In</Button>
                 <Button href="/sign-up" variant="primary" class="hidden md:flex">Get Started

@@ -103,6 +103,6 @@ export const actions: Actions = {
             //avatar_url
         });
 
-        redirect(303, '/dashboard');
+        redirect(303, '/library');
     }
 } satisfies Actions; 

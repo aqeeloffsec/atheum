@@ -157,7 +157,7 @@
             
             // We request the confirmPayment but WITHOUT automatic redirect if possible
             // Appending verify_sub_id so that if Stripe forces a redirect, the component catches it on reload 
-            const returnUrl = new URL(`${window.location.origin}/dashboard/pricing`);
+            const returnUrl = new URL(`${window.location.origin}/library/pricing`);
             returnUrl.searchParams.set('verify_sub_id', currentSubscriptionId || '');
             
             const result = await stripe.confirmPayment({

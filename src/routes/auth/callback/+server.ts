@@ -47,7 +47,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
             //return new Response("User already exists", { status: 400 })
         }
 
-        throw redirect(303, '/dashboard');
+        throw redirect(303, '/library');
     }
 
     return new Response("User session data not found", { status: 400 })

@@ -72,7 +72,7 @@
         {/each}
         <div class="md:hidden flex flex-wrap gap-2 pt-2">
             {#if user}
-                <Button href="/dashboard" variant="primary" class="flex-1 text-center">Go to Dashboard</Button>
+                <Button href="/library" variant="primary" class="flex-1 text-center">Go to Dashboard</Button>
             {:else}
                 <Button href="/login" variant="outline" class="flex-1 text-center">Sign In</Button>
                 <Button href="/sign-up" variant="primary" class="flex-1 text-center">Get Started</Button>

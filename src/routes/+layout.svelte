@@ -7,6 +7,8 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { setUserState } from '$lib/state/user-state.svelte';
 
+	import { SvelteKitTopLoader } from 'sveltekit-top-loader';
+
 	let { children, data } = $props();
 	let {session, supabase} = $derived(data);
 
@@ -35,7 +37,7 @@
 	});
 	
 	const isAuthPageRoute = $derived(['/sign-up', '/login', '/forgot-password'].includes(page.url.pathname));
-	const isProtectedPageRoute = $derived(['/dashboard'].includes(page.url.pathname));
+	const isProtectedPageRoute = $derived(['/library'].includes(page.url.pathname));
 </script>
 
 <svelte:head><link rel="icon" href={favicon} />
@@ -46,6 +48,7 @@
 	<title>Atheum - Sanctuary for your digital library</title>
 </svelte:head>
 
+<SvelteKitTopLoader showSpinner={false} color="#1a232e" height={4}/>
 <main class="min-h-screen font-sans antialiased {isAuthPageRoute && 'flex bg-[#fdfaf6] overflow-y-hidden!'} {isProtectedPageRoute && 'flex h-screen w-full overflow-hidden bg-[#fdfaf6] text-[#333333] selection:bg-[#e6e0d4]'}">
 	{@render children()}
 </main>

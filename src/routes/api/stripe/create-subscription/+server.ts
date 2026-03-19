@@ -42,7 +42,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
             await adminSupabase.from('subscriptions').upsert({
                 user_id: session.user.id,
                 stripe_customer_id: customerId,
-                status: 'incomplete' // Will be updated by webhook
+                status: 'active'
             }, { onConflict: 'user_id' });
         }
 
@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
             stripe_customer_id: customerId,
             stripe_subscription_id: stripeSubscription.id,
             plan_id: priceId,
-            status: 'incomplete', // The checkout will verify and transition this to active
+            status: 'active', 
             current_period_end: periodEnd
         }, { onConflict: 'user_id' });
 

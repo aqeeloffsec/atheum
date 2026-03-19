@@ -127,7 +127,7 @@
 
             <form 
                 method="POST" 
-                action="/dashboard?/addBook" 
+                action="/library?/addBook" 
                 enctype="multipart/form-data"
                 use:enhance={() => {
                     loadingAdd = true;

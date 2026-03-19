@@ -6,6 +6,7 @@
         variant?: 'primary' | 'outline' | 'ghost' | 'none';
         size?: 'sm' | 'default' | 'lg' | 'icon' | 'none';
         class?: string;
+        type?: 'button' | 'submit' | 'reset';
         children?: Snippet;
     } & (
         | (HTMLAnchorAttributes & { href: string })
@@ -15,6 +16,7 @@
     let {
         href,
         variant = 'primary',
+        type = 'button',
         size = 'default',
         class: customClass = '',
         children,
@@ -54,6 +56,7 @@
 <svelte:element
     this={href ? 'a' : 'button'}
     {href}
+    type={href ? undefined : type}
     class={computedClass}
     {...(restProps as any)}
 >

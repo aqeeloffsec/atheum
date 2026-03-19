@@ -31,7 +31,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         // We can safely assume it's active if the payment has cleared.
         const invoice = stripeSubscription.latest_invoice as any;
         const paymentIntent = invoice?.payment_intent;
-        if (status === 'incomplete' && paymentIntent?.status === 'succeeded') {
+        if (paymentIntent?.status === 'succeeded') {
             status = 'active';
         }
 
@@ -47,7 +47,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         const upsertData: any = {
             stripe_customer_id: customerId,
             stripe_subscription_id: subscriptionId,
-            status: status,
+            status: 'active',
             plan_id: planId,
             current_period_end: currentPeriodEnd,
         };

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getUserState } from "$lib/state/user-state.svelte";
-    import QuickViewBook from "$lib/components/dashboard/QuickViewBook.svelte";
-    import SubscriptionStatus from "$lib/components/dashboard/SubscriptionStatus.svelte";
+    import QuickViewBook from "$lib/components/library/QuickViewBook.svelte";
+    import SubscriptionStatus from "$lib/components/library/SubscriptionStatus.svelte";
     
     let { data } = $props();
     let userContext = getUserState();

@@ -63,6 +63,6 @@ export const actions = {
             return fail(400, returnObject as any);
         }
 
-        redirect(303, '/dashboard');
+        redirect(303, '/library');
     }
 } satisfies Actions;

@@ -3,6 +3,12 @@
     import ScrollTrigger from "gsap/ScrollTrigger";
 
     import { page } from '$app/state';
+    import { goto } from '$app/navigation';
+
+    import { getUserState } from "$lib/state/user-state.svelte";
+
+    let userContext = getUserState();
+    let { user } = $derived(userContext);
 
     let sectionRef = $state<HTMLElement>();
     let headerRef = $state<HTMLElement>();
@@ -13,7 +19,7 @@
         isDashboardView = false, 
         currentPlan = null, 
         onUpgradeRequest = null 
-    } = $props<{ 
+    } = $props<{
         isDashboardView?: boolean, 
         currentPlan?: string | null,
         onUpgradeRequest?: ((priceId: string) => void) | null 
@@ -26,8 +32,6 @@
         PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY, 
         PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY
     } from "$env/static/public";
-
-
 
     $effect(() => {
         gsap.registerPlugin(ScrollTrigger);
@@ -147,21 +151,21 @@
                     onclick={() => {
                         if (isDashboardView) {
                             if (currentPlan === 'free' || !currentPlan) {
-                                window.location.href = '/dashboard';
+                                goto('/library');
                             } else if (onUpgradeRequest) {
                                 onUpgradeRequest('free');
                             }
                         } else {
-                            window.location.href = page.data.session ? '/dashboard' : '/login';
+                            goto((page.data.session && user) ? '/library' : '/login');
                         }
                     }}
-                    disabled={isDashboardView && (currentPlan === 'free' || !currentPlan)}
-                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all {isDashboardView && (currentPlan === 'free' || !currentPlan) ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#f5f3f0] text-[#1a232e] hover:bg-[#ece8e0]'} cursor-pointer disabled:cursor-default"
+                    disabled={(currentPlan === 'free' || !currentPlan)}
+                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all {(currentPlan === 'free' || !currentPlan) ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#f5f3f0] text-[#1a232e] hover:bg-[#ece8e0]'} cursor-pointer disabled:cursor-default"
                 >
-                    {#if isDashboardView}
-                         {currentPlan === 'free' || !currentPlan ? 'Current Plan' : 'Downgrade to Reader (Free)'}
+                    {#if (page.data.session && user)}
+                        {(currentPlan === 'free' || !currentPlan) ? 'Current Plan' : 'Switch to Free'}
                     {:else}
-                         {page.data.session ? 'Go to Dashboard' : 'Get Started'}
+                        Start for Free
                     {/if}
                 </button>
             </div>
@@ -210,15 +214,16 @@
                             const priceId = isYearly ? PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY : PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY;
                             onUpgradeRequest(priceId);
                         } else {
-                            window.location.href = page.data.session ? '/dashboard' : '/login';
+                            goto((page.data.session && user) ? '/library' : '/login');
                         }
                     }}
-                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all bg-[#fdfaf6] text-[#1a232e] hover:bg-white cursor-pointer"
+                    disabled={(currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY)}
+                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all {(currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY) ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#f5f3f0] text-[#1a232e] hover:bg-[#ece8e0]'} cursor-pointer disabled:cursor-default"
                 >
-                    {#if isDashboardView}
-                        {currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY ? 'Current Plan' : (currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY ? 'Downgrade to Scholar' : 'Upgrade to Scholar')}
+                    {#if (page.data.session && user)}
+                        {(currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY) ? 'Current Plan' : (currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY) ? 'Downgrade to Scholar' : 'Upgrade to Scholar'}
                     {:else}
-                        {page.data.session ? 'Go to Dashboard' : 'Subscribe Now'}
+                        Subscribe Now
                     {/if}
                 </button>
             </div>
@@ -266,15 +271,16 @@
                             const priceId = isYearly ? PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY : PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY;
                             onUpgradeRequest(priceId);
                         } else {
-                            window.location.href = page.data.session ? '/dashboard' : '/login';
+                            goto((page.data.session && user) ? '/library' : '/login');
                         }
                     }}
-                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all bg-[#1a232e] text-white hover:bg-[#2d3b4b] cursor-pointer"
+                    disabled={(currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY)}
+                    class="w-full py-3 px-6 rounded-2xl font-bold text-sm transition-all {(currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY) ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#f5f3f0] text-[#1a232e] hover:bg-[#ece8e0]'} cursor-pointer disabled:cursor-default"
                 >
-                    {#if isDashboardView}
-                        {currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY ? 'Current Plan' : 'Upgrade to Librarian'}
+                    {#if (page.data.session && user)}
+                        {(currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY) ? 'Current Plan' : 'Upgrade to Librarian'}
                     {:else}
-                        {page.data.session ? 'Go to Dashboard' : 'Subscribe Now'}
+                        Subscribe Now
                     {/if}
                 </button>
             </div>

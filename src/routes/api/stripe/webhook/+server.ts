@@ -45,7 +45,7 @@ export const POST: RequestHandler = async ({ request }) => {
                     stripe_customer_id: customerId,
                     stripe_subscription_id: subscriptionId,
                     plan_id: planId,
-                    status: subscription.status,
+                    status: 'active',
                     current_period_end: currentPeriodEnd,
                 }, { onConflict: 'user_id' });
                 break;
@@ -88,6 +88,11 @@ export const POST: RequestHandler = async ({ request }) => {
                 if (existingStatus === 'active' && status === 'incomplete') {
                     finalStatus = 'active';
                     console.log(`[WEBHOOK] Prevented downgrade from active to incomplete for subscription ${subscription.id}`);
+                }
+
+                // Force strictly to 'active' input on subscription creation after successful payment.
+                if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+                    finalStatus = 'active';
                 }
 
                 const upsertData: any = {

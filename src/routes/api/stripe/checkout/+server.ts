@@ -27,7 +27,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                     quantity: 1,
                 },
             ],
-            return_url: `${PUBLIC_FRONTEND_URL}/dashboard?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+            return_url: `${PUBLIC_FRONTEND_URL}/library?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
             customer_email: session.user.email,
             client_reference_id: session.user.id,
             subscription_data: {

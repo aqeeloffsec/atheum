@@ -2,6 +2,7 @@
     import Button from "$lib/components/shared/Button.svelte";
     import gsap from "gsap";
     import ScrollTrigger from "gsap/ScrollTrigger";
+    import { getUserState } from "$lib/state/user-state.svelte";
 
     let sectionRef = $state<HTMLElement>();
     let badgeRef = $state<HTMLElement>();
@@ -10,6 +11,11 @@
     let ctasRef = $state<HTMLElement>();
     let booksRef = $state<HTMLDivElement>();
     let scrollHintRef = $state<HTMLElement>();
+
+    //let { scrollToSection } = $props();
+
+    let userContext = getUserState();
+    let { user } = $derived(userContext);
 
     $effect(() => {
         if (!sectionRef) return;
@@ -142,24 +148,39 @@
             bind:this={ctasRef}
             class="flex flex-col min-[400px]:flex-row items-center justify-center gap-4 mb-16 px-4"
         >
-            <Button variant="primary" size="lg" class="w-full min-[400px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
-                    <path d="m16 6 4 14"></path>
-                    <path d="M12 6v14"></path>
-                    <path d="M8 8v12"></path>
-                    <path d="M4 4v16"></path>
-                </svg>Start for Free
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true">
-                    <path d="M5 12h14"></path>
-                    <path d="m12 5 7 7-7 7"></path>
-                </svg>
-            </Button>
-            <Button variant="outline" size="lg" class="w-full min-[400px]:w-auto group border-2 border-[#1a232e]/20 hover:border-[#1a232e]/60 duration-200">Sign In
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 opacity-60" aria-hidden="true">
-                    <path d="M5 12h14"></path>
-                    <path d="m12 5 7 7-7 7"></path>
-                </svg>
-            </Button>
+            {#if user}
+                 <Button href="/library" variant="primary" size="lg" class="w-full min-[400px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
+                        <path d="m16 6 4 14"></path>
+                        <path d="M12 6v14"></path>
+                        <path d="M8 8v12"></path>
+                        <path d="M4 4v16"></path>
+                    </svg>Go to Library
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                </Button>
+            {:else}
+                <Button href="/sign-up" variant="primary" size="lg" class="w-full min-[400px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
+                        <path d="m16 6 4 14"></path>
+                        <path d="M12 6v14"></path>
+                        <path d="M8 8v12"></path>
+                        <path d="M4 4v16"></path>
+                    </svg>Start for Free
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                </Button>
+                <Button href="/login" variant="outline" size="lg" class="w-full min-[400px]:w-auto group border-2 border-[#1a232e]/20 hover:border-[#1a232e]/60 duration-200">Sign In
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 opacity-60" aria-hidden="true">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                </Button>
+            {/if}
             <a href="#features" class="flex items-center gap-2 text-gray-500 px-5 py-4 font-medium text-base hover:text-[#1a232e] transition-all duration-200">Explore Features
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-4 h-4" aria-hidden="true">
                     <path d="m6 9 6 6 6-6"></path>

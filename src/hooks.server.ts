@@ -6,6 +6,9 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/stati
 
 const supabase: Handle = async ({ event, resolve }) => {
     event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+        global: {
+            fetch: event.fetch,
+        },
         cookies: {
             getAll: () => {
                 return event.cookies.getAll()
@@ -60,14 +63,14 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
     const { pathname } = event.url;
 
-    const isPrivateRoute = pathname.startsWith('/dashboard');
+    const isPrivateRoute = pathname.startsWith('/library');
 
     //const authPaths = ['/login', '/sign-up', '/forgot-password'];
     
    // const isAuthRoute = authPaths.some(path => pathname.startsWith(path));
 
     //const isPrivateRoute = event.route.id?.includes('/(private)/');
-    //const isPrivateRoute = event.url.pathname.startsWith('/dashboard');
+    //const isPrivateRoute = event.url.pathname.startsWith('/library');
 
     //const isAuthRoute = event.route.id?.includes('/(auth)/');
     const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/sign-up') ||  pathname.startsWith('/forgot-password');
@@ -78,7 +81,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
     //event.url.pathname.startsWith('/sign-in')
     if (event.locals.session && isAuthRoute) {
-        throw redirect(302, '/dashboard');
+        throw redirect(302, '/library');
     };
 
     return resolve(event); 
