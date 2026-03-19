@@ -1,5 +1,5 @@
 <script lang="ts">
-    import BookReadingView from "$lib/components/dashboard/BookReadingView.svelte";
+    import BookReadingView from "$lib/components/library/BookReadingView.svelte";
     
     let { data } = $props();
 </script>
