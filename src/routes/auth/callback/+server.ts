@@ -15,15 +15,11 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
     }
     
     const { data: { user }, error } = await supabase.auth.getUser();
-    const sessionData = await supabase.auth.getSession();
-    //const { data: { user }, error } = sessionData;
 
-    if (user && !error) { console.log(user, 'with getUser') }
-    if (sessionData.data.session) {
-        //console.log(user);
-        console.log(sessionData.data.session.user);
-        const userId = sessionData.data.session.user.id;
-        const userName = sessionData.data.session.user.user_metadata.name;
+    if (user && !error) {
+        console.log(user, 'with getUser');
+        const userId = user.id;
+        const userName = user.user_metadata.name;
 
         //const { data: existingUser, error: selectError } = await supabase.from("profile").select("username").eq("user_id", userId).single;
         const { data: existingUser, error: selectError } = await supabase.from("profile").select("username").eq("user_id", userId).single();

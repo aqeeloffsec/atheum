@@ -1,10 +1,24 @@
 <script lang="ts">
+    import { page } from "$app/state";
+    import { goto } from "$app/navigation";
     import { getUserState } from "$lib/state/user-state.svelte";
-    import QuickViewBook from "$lib/components/library/QuickViewBook.svelte";
     import SubscriptionStatus from "$lib/components/library/SubscriptionStatus.svelte";
     
     let { data } = $props();
     let userContext = getUserState();
+    
+    let searchQuery = $state(page.url.searchParams.get('q') || '');
+    
+    // We update URL seamlessly for sharing purposes without hitting the server
+    $effect(() => {
+        const url = new URL(page.url);
+        if (searchQuery.trim()) {
+            url.searchParams.set('q', searchQuery.trim());
+        } else {
+            url.searchParams.delete('q');
+        }
+        goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
+    });
 
     $effect(() => {
         if (data.books) {
@@ -26,6 +40,16 @@
     let filteredBooks = $derived.by(() => {
         if (!userContext.books) return [];
         let result = userContext.books;
+
+        const sq = searchQuery.trim().toLowerCase();
+        if (sq) {
+            result = result.filter(b => 
+                (b.title && b.title.toLowerCase().includes(sq)) || 
+                (b.author && b.author.toLowerCase().includes(sq)) ||
+                (b.genre && b.genre.toLowerCase().includes(sq)) ||
+                (b.synopsis && b.synopsis.toLowerCase().includes(sq))
+            );
+        }
 
         // Apply Status/Favorites filter
         if (userContext.activeFilter === 'Reading') {
@@ -52,7 +76,7 @@
     
     <div class="flex items-baseline justify-between mb-8">
         <div>
-            <h2 class="text-3xl font-serif font-bold text-[#1a232e]">Your Collection</h2>
+            <h2 class="text-3xl font-serif font-bold text-[#1a232e]">My Library</h2>
             <p class="text-gray-500 mt-1">{filteredBooks.length} books</p>
         </div>
         <div class="flex items-center gap-3">
@@ -76,8 +100,26 @@
     </div>
 
     <!-- Filters Row -->
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div class="flex flex-wrap gap-2">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        
+        <form class="relative w-full md:max-w-md" onsubmit={(e) => { e.preventDefault(); }}>
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+            </div>
+            <input 
+                type="search" 
+                name="q"
+                bind:value={searchQuery}
+                placeholder="Search library by title, author, genre..." 
+                class="w-full bg-white border border-[#e6e0d4] text-gray-700 py-2.5 pl-11 pr-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 transition-all font-medium text-sm"
+            >
+        </form>
+
+        <div class="flex gap-4 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+            <div class="flex flex-nowrap gap-2 shrink-0">
             {#each filterOptions as option}
                 <button 
                     onclick={() => userContext.activeFilter = option}
@@ -91,7 +133,7 @@
         <div class="relative min-w-[180px]">
             <select 
                 bind:value={userContext.activeGenre}
-                class="w-full appearance-none bg-white border border-[#e6e0d4] text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1a232e]/20 transition-all font-medium text-sm cursor-pointer"
+                class="w-full appearance-none bg-white border border-[#e6e0d4] text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-0 transition-all font-medium text-sm cursor-pointer"
             >
                 <option value="All Genres">All Genres</option>
                 {#each allGenres as genre}
@@ -101,6 +143,7 @@
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
             </div>
+        </div>
         </div>
     </div>
     
@@ -163,9 +206,9 @@
                     <path d="M4 4v16"></path>
                 </svg>
             </div>
-            <h3 class="text-xl font-serif font-bold text-[#1a232e] mb-2">No books found</h3>
-            <p class="text-gray-500 max-w-sm mb-6">We couldn't find any books matching your current filters. Try selecting a different view or adding a new book.</p>
-            <button onclick={() => { userContext.activeFilter = 'All Books'; userContext.activeGenre = 'All Genres'; }} class="bg-white border text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-50 transition-all font-medium text-sm shadow-sm inline-flex items-center gap-2 cursor-pointer mb-2">
+            <h3 class="text-xl font-serif font-bold text-[#1a232e] mb-2">{searchQuery ? `No results for "${searchQuery}"` : 'No books found'}</h3>
+            <p class="text-gray-500 max-w-sm mb-6">{searchQuery ? 'Try adjusting your search terms or filters.' : 'We couldn\'t find any books matching your current filters. Try selecting a different view or adding a new book.'}</p>
+            <button onclick={() => { userContext.activeFilter = 'All Books'; userContext.activeGenre = 'All Genres'; searchQuery = ''; }} class="bg-white border border-gray-200 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-50 transition-all font-medium text-sm shadow-sm inline-flex items-center gap-2 cursor-pointer mb-2">
                 Clear Filters
             </button>
             <button onclick={() => { userContext.isAddBookModalOpen = true; }} class="bg-[#1a232e] text-white px-6 py-3 rounded-xl hover:bg-[#2d3b4b] transition-all font-medium text-sm shadow-sm inline-flex items-center gap-2 cursor-pointer mt-2 w-max mx-auto">

@@ -2,6 +2,8 @@
     import Button from "$lib/components/shared/Button.svelte";
     import gsap from "gsap";
     import ScrollTrigger from "gsap/ScrollTrigger";
+    import ScrollToPlugin from "gsap/ScrollToPlugin";
+    import { navigationState } from "$lib/state/navigation-state.svelte";
     import { getUserState } from "$lib/state/user-state.svelte";
 
     let sectionRef = $state<HTMLElement>();
@@ -16,6 +18,20 @@
 
     let userContext = getUserState();
     let { user } = $derived(userContext);
+
+    const scrollToFeatures = () => {
+        gsap.registerPlugin(ScrollToPlugin);
+        if (navigationState.features) {
+            gsap.to(window, {
+                duration: 1.2,
+                ease: "power3.out",
+                scrollTo: {
+                    y: navigationState.features,
+                    autoKill: true
+                }
+            });
+        }
+    };
 
     $effect(() => {
         if (!sectionRef) return;
@@ -128,9 +144,9 @@
 
         <h1 
             bind:this={titleRef}
-            class="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-[#1a232e] leading-[1.1] md:leading-[1.05] tracking-tight mb-6"
+            class="font-serif text-4xl sm:text-5xl md:text-7xl font-bold text-[#1a232e] leading-[1.1] md:leading-[1.05] tracking-tight mb-6"
         >
-            Every great story 
+            Every great story<br/>
             <span class="relative inline-block">
                 <span class="relative z-10">deserves</span>
                 <span class="absolute -bottom-1 left-0 right-0 h-3 bg-amber-200/70 rounded-sm origin-left z-0"></span>
@@ -146,10 +162,10 @@
 
         <div 
             bind:this={ctasRef}
-            class="flex flex-col min-[400px]:flex-row items-center justify-center gap-4 mb-16 px-4"
+            class="flex flex-col min-[520px]:flex-row items-center justify-center gap-4 mb-16 px-4"
         >
             {#if user}
-                 <Button href="/library" variant="primary" size="lg" class="w-full min-[400px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
+                 <Button href="/library" variant="primary" size="lg" class="w-full min-[520px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
                         <path d="m16 6 4 14"></path>
                         <path d="M12 6v14"></path>
@@ -162,7 +178,7 @@
                     </svg>
                 </Button>
             {:else}
-                <Button href="/sign-up" variant="primary" size="lg" class="w-full min-[400px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
+                <Button href="/sign-up" variant="primary" size="lg" class="w-full min-[520px]:w-auto group gap-3 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
                         <path d="m16 6 4 14"></path>
                         <path d="M12 6v14"></path>
@@ -174,64 +190,75 @@
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
                 </Button>
-                <Button href="/login" variant="outline" size="lg" class="w-full min-[400px]:w-auto group border-2 border-[#1a232e]/20 hover:border-[#1a232e]/60 duration-200">Sign In
+                <Button href="/login" variant="outline" size="lg" class="w-full min-[520px]:w-auto group border-2 border-[#1a232e]/20 hover:border-[#1a232e]/60 duration-200">Sign In
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 opacity-60" aria-hidden="true">
                         <path d="M5 12h14"></path>
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
                 </Button>
             {/if}
-            <a href="#features" class="flex items-center gap-2 text-gray-500 px-5 py-4 font-medium text-base hover:text-[#1a232e] transition-all duration-200">Explore Features
+            <button 
+                onclick={scrollToFeatures}
+                class="flex items-center gap-2 text-gray-500 px-5 py-4 font-medium text-base hover:text-[#1a232e] transition-all duration-200 cursor-pointer"
+            >
+                Explore Features
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-4 h-4" aria-hidden="true">
                     <path d="m6 9 6 6 6-6"></path>
                 </svg>
-            </a>
+            </button>
         </div>
 
         <div 
             bind:this={booksRef}
-            class="relative flex justify-center items-end gap-4 md:gap-6 h-72 md:h-96"
+            class="relative flex justify-center items-end gap-5 md:gap-10 lg:gap-14 h-88 sm:h-96 md:h-128 mb-8"
         >
-            <div class="book-item relative cursor-pointer w-28 md:w-36" style="margin-bottom: -16px; transform: rotate(-6deg);">
-                <div class="relative aspect-2/3 rounded-xl overflow-hidden shadow-2xl">
-                    <img alt="The Shadow of the Wind" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&amp;fit=crop&amp;q=80&amp;w=300&amp;h=450">
-                    <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-3 text-left">
-                        <p class="font-serif font-bold text-white text-xs leading-tight line-clamp-2">The Shadow of the Wind</p>
+            <div class="book-item group relative cursor-pointer w-32 sm:w-40 md:w-52 lg:w-60 -mb-5 -rotate-8">
+                <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 will-change-transform group-hover:-translate-y-4 group-hover:scale-[1.03] group-hover:rotate-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)] z-0 group-hover:z-50">
+                    <img alt="The Shadow of the Wind" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1667039487487-2af414218c49?auto=format&fit=crop&q=80&w=600&h=900">
+                    <div class="absolute inset-0 bg-linear-to-t from-[#1a232e]/90 via-[#1a232e]/20 to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-left transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
+                        <p class="font-serif font-bold text-white text-sm sm:text-base md:text-xl leading-tight line-clamp-2 drop-shadow-md">The Design of Everyday Things</p>
+                        <p class="text-white/80 text-xs sm:text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75 filter blur-[2px] group-hover:blur-none">Don Norman</p>
                     </div>
                 </div>
             </div>
 
-            <div class="book-item relative cursor-pointer w-36 md:w-48 z-10" style="margin-bottom: 0px;">
-                <div class="relative aspect-2/3 rounded-xl overflow-hidden shadow-2xl">
-                    <img alt="Pride and Prejudice" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&amp;fit=crop&amp;q=80&amp;w=300&amp;h=450">
-                    <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-3 text-left">
-                        <p class="font-serif font-bold text-white text-xs leading-tight line-clamp-2">Pride and Prejudice</p>
+            <div class="book-item group relative cursor-pointer w-40 sm:w-48 md:w-64 lg:w-72 z-20 mb-0">
+                <div class="absolute -inset-4 md:-inset-6 bg-amber-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 will-change-transform scale-90 group-hover:scale-100"></div>
+                <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] transition-all duration-500 will-change-transform group-hover:-translate-y-6 group-hover:scale-[1.05] group-hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_2px_10px_0_rgba(255,255,255,0.15)] bg-[#1a232e]">
+                    <img alt="Pride and Prejudice" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" src="https://images.unsplash.com/photo-1591202928585-ae660165f73c?auto=format&fit=crop&q=80&w=600&h=900">
+                    <div class="absolute inset-0 bg-linear-to-t from-[#1a232e] via-[#1a232e]/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-left transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                        <p class="font-serif font-bold text-white text-base sm:text-lg md:text-2xl leading-tight line-clamp-2 drop-shadow-lg">The Communication Book</p>
+                        <p class="text-white/80 text-xs sm:text-sm md:text-base mt-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75 transform translate-y-2 group-hover:translate-y-0">
+                            <span class="w-4 h-px bg-amber-400"></span> Mikael Krogerus & Roman Tschäppeler
+                        </p>
                     </div>
                 </div>
-                <div class="absolute -top-3 -right-3 bg-emerald-500 text-white text-[9px] font-bold px-2 py-1 rounded-lg shadow-lg uppercase tracking-wide">★ Featured</div>
+                <div class="absolute -top-3 -right-3 md:-top-5 md:-right-5 bg-linear-to-br from-emerald-400 to-emerald-600 text-white text-[10px] md:text-xs lg:text-sm font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl shadow-xl uppercase tracking-widest transform group-hover:scale-110 transition-all duration-500 border border-emerald-300/30 z-30">★ Featured</div>
             </div>
 
-            <div class="book-item relative cursor-pointer w-28 md:w-36" style="margin-bottom: -16px; transform: rotate(6deg);">
-                <div class="relative aspect-2/3 rounded-xl overflow-hidden shadow-2xl">
-                    <img alt="Dune" class="w-full h-full object-cover" src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&amp;fit=crop&amp;q=80&amp;w=300&amp;h=450">
-                    <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-3 text-left">
-                        <p class="font-serif font-bold text-white text-xs leading-tight line-clamp-2">Dune</p>
+            <div class="book-item group relative cursor-pointer w-32 sm:w-40 md:w-52 lg:w-60 z-10 -mb-5 rotate-8">
+                <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 will-change-transform group-hover:-translate-y-4 group-hover:scale-[1.03] group-hover:-rotate-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)]">
+                    <img alt="Dune" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&amp;fit=crop&amp;q=80&amp;w=600&amp;h=900">
+                    <div class="absolute inset-0 bg-linear-to-t from-[#1a232e]/90 via-[#1a232e]/20 to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-left transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
+                        <p class="font-serif font-bold text-white text-sm sm:text-base md:text-xl leading-tight line-clamp-2 drop-shadow-md">How Innovation Works</p>
+                        <p class="text-white/80 text-xs sm:text-sm mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75 filter blur-[2px] group-hover:blur-none">Matt Ridley</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div 
+    <button 
         bind:this={scrollHintRef}
-        class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-gray-400 cursor-pointer"
+        onclick={scrollToFeatures}
+        aria-label="scroll"
+        class="bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-[#1a232e] cursor-pointer border-none bg-transparent"
     >
-        <span class="text-xs font-medium tracking-widest uppercase">Scroll</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-4 h-4 animate-bounce" aria-hidden="true">
             <path d="m6 9 6 6 6-6"></path>
         </svg>
-    </div>
+    </button>
 </section>

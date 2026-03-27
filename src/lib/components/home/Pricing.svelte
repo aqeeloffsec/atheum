@@ -95,7 +95,7 @@
             </div>
             <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#1a232e] mb-4">Plans for every reader</h2>
             <p class="text-gray-500 text-base sm:text-lg max-w-xl mx-auto mb-8">Start free. Upgrade when you're ready. No hidden fees — just more books.</p>
-            <div class="flex items-center justify-center gap-4 mb-8">
+            <div class="flex items-center justify-center gap-2 sm:gap-4 mb-8">
                 <span class="text-sm font-medium transition-colors {isYearly ? 'text-gray-400' : 'text-[#1a232e]'}">Monthly</span>
                 <button 
                     onclick={() => isYearly = !isYearly}
@@ -156,7 +156,7 @@
                                 onUpgradeRequest('free');
                             }
                         } else {
-                            goto((page.data.session && user) ? '/library' : '/login');
+                            goto((page.data.session && user) ? '/library/pricing' : '/login');
                         }
                     }}
                     disabled={(currentPlan === 'free' || !currentPlan)}
@@ -214,7 +214,7 @@
                             const priceId = isYearly ? PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY : PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY;
                             onUpgradeRequest(priceId);
                         } else {
-                            goto((page.data.session && user) ? '/library' : '/login');
+                            goto((page.data.session && user) ? '/library/pricing' : '/login');
                         }
                     }}
                     disabled={(currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY)}
@@ -271,7 +271,7 @@
                             const priceId = isYearly ? PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY : PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY;
                             onUpgradeRequest(priceId);
                         } else {
-                            goto((page.data.session && user) ? '/library' : '/login');
+                            goto((page.data.session && user) ? '/library/pricing' : '/login');
                         }
                     }}
                     disabled={(currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY)}

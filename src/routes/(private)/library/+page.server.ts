@@ -8,8 +8,8 @@ import {
     PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY 
 } from '$env/static/public';
 
-export const load: PageServerLoad = async ({ locals: { supabase, session, subscription }, url }) => {
-    if (!session) {
+export const load: PageServerLoad = async ({ locals: { supabase, session, subscription, user }, url }) => {
+    if (!session || !user) {
         return { books: [], subscription: null };
     }
 
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, session, subscr
                     
                     // Optimistically update DB so the UI reflects the purchased plan instantly
                     const { data } = await supabase.from('subscriptions').upsert({
-                        user_id: session.user.id,
+                        user_id: user.id,
                         stripe_customer_id: paymentIntent.customer as string,
                         stripe_subscription_id: stripeSub.id,
                         plan_id: planId,
@@ -53,14 +53,16 @@ export const load: PageServerLoad = async ({ locals: { supabase, session, subscr
         }
     }
 
-    const { data: books, error: fetchError } = await supabase
+    let queryBuilder = supabase
         .from('books')
         .select('*')
         .order('created_at', { ascending: false });
 
+    const { data: books, error: fetchError } = await queryBuilder;
+
     if (fetchError) {
         console.error('Error fetching books:', fetchError);
-        return { books: [], subscription };
+        return { books: [], subscription: currentSubscription };
     }
 
     return {
@@ -70,8 +72,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, session, subscr
 };
 
 export const actions: Actions = {
-    addBook: async ({ request, locals: { supabase, session, subscription } }) => {
-        if (!session) {
+    addBook: async ({ request, locals: { supabase, session, subscription, user } }) => {
+        if (!session || !user) {
             return fail(401, { message: 'Unauthorized' });
         }
 
@@ -79,7 +81,7 @@ export const actions: Actions = {
         const { count, error: countError } = await supabase
             .from('books')
             .select('*', { count: 'exact', head: true })
-            .eq('user_id', session.user.id);
+            .eq('user_id', user.id);
 
         if (countError) {
             console.error('Error checking book count:', countError);
@@ -136,7 +138,7 @@ export const actions: Actions = {
         // 1. Upload PDF to Storage if it exists
         if (bookFile && bookFile.size > 0) {
             // Generate a unique file path (user_id/timestamp-filename)
-            const fileName = `${session.user.id}/${Date.now()}-${bookFile.name}`;
+            const fileName = `${user.id}/${Date.now()}-${bookFile.name}`;
             
             const { data: uploadData, error: uploadError } = await supabase.storage
                 .from('book-pdfs')
@@ -152,7 +154,7 @@ export const actions: Actions = {
 
         // 2. Insert into Database
         const { error } = await supabase.from('books').insert({
-            user_id: session.user.id,
+            user_id: user.id,
             title,
             author,
             genre,
@@ -170,8 +172,8 @@ export const actions: Actions = {
 
         return { success: true };
     },
-    deleteBook: async ({ request, locals: { supabase, session } }) => {
-        if (!session) {
+    deleteBook: async ({ request, locals: { supabase, session, user } }) => {
+        if (!session || !user) {
             return fail(401, { message: 'Unauthorized' });
         }
 
@@ -188,7 +190,7 @@ export const actions: Actions = {
             .from('books')
             .delete()
             .eq('id', bookId)
-            .eq('user_id', session.user.id);
+            .eq('user_id', user.id);
 
         if (deleteDbError) {
             console.error('Error deleting book from DB:', deleteDbError);

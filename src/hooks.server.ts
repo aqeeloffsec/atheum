@@ -36,13 +36,13 @@ const supabase: Handle = async ({ event, resolve }) => {
     };
 
     event.locals.getSubscription = async () => {
-        const { session } = await event.locals.safeGetSession();
-        if (!session) return null;
+        const { session, user } = await event.locals.safeGetSession();
+        if (!session || !user) return null;
 
         const { data: subscription } = await event.locals.supabase
             .from('subscriptions')
             .select('*')
-            .eq('user_id', session.user.id)
+            .eq('user_id', user.id)
             .single();
 
         return subscription;

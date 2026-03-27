@@ -77,7 +77,7 @@ export class UserState {
             .from('books')
             .update({ is_favorite: newStatus })
             .eq('id', bookId)
-            .eq('user_id', this.session.user.id);
+            .eq('user_id', this.user?.id);
 
         if (error) {
             console.error('Error updating favorite exactly:', error);

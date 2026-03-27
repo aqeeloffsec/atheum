@@ -4,9 +4,9 @@ import { PUBLIC_FRONTEND_URL } from '$env/static/public';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
-    const { session } = await locals.safeGetSession();
+    const { session, user } = await locals.safeGetSession();
     
-    if (!session) {
+    if (!session || !user) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,11 +28,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                 },
             ],
             return_url: `${PUBLIC_FRONTEND_URL}/library?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-            customer_email: session.user.email,
-            client_reference_id: session.user.id,
+            customer_email: user.email,
+            client_reference_id: user.id,
             subscription_data: {
                 metadata: {
-                    user_id: session.user.id,
+                    user_id: user.id,
                 },
             },
         });

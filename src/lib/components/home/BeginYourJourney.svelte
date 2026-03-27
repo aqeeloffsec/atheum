@@ -69,7 +69,7 @@
         <p class="text-gray-400 text-base sm:text-lg mb-10 leading-relaxed px-2">Every reader deserves a beautiful, organised collection. Start adding books today — it's completely free.</p>
         
         <div class="flex flex-wrap justify-center gap-4">
-            <button bind:this={buttonRef} class="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#fdfaf6] text-[#1a232e] px-10 py-4 rounded-2xl font-bold text-base shadow-xl hover:bg-white hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-200">
+            <a href="/library" bind:this={buttonRef} class="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#fdfaf6] text-[#1a232e] px-10 py-4 rounded-2xl font-bold text-base shadow-xl hover:bg-white hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-5 h-5" aria-hidden="true">
                     <path d="m16 6 4 14"></path>
                     <path d="M12 6v14"></path>
@@ -80,13 +80,7 @@
                     <path d="M5 12h14"></path>
                     <path d="m12 5 7 7-7 7"></path>
                 </svg>
-            </button>
+            </a>
         </div>
-        
-        <p class="text-gray-600 text-xs sm:text-sm mt-6 flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield w-4 h-4" aria-hidden="true">
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
-            </svg>Free to use · No account required · Private by default
-        </p>
     </div>
 </section>

@@ -6,8 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 
-export const POST: RequestHandler = async ({ request, locals: { supabase, session } }) => {
-    if (!session) {
+export const POST: RequestHandler = async ({ request, locals: { supabase, session, user } }) => {
+    if (!session || !user) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         const { data: subscription } = await supabase
             .from('subscriptions')
             .select('stripe_customer_id')
-            .eq('user_id', session.user.id)
+            .eq('user_id', user.id)
             .single();
 
         let customerId = subscription?.stripe_customer_id;
@@ -30,9 +30,9 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         // Create a new customer if one doesn't exist
         if (!customerId) {
             const customer = await stripe.customers.create({
-                email: session.user.email,
+                email: user.email,
                 metadata: {
-                    user_id: session.user.id
+                    user_id: user.id
                 }
             });
             customerId = customer.id;
@@ -40,7 +40,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
             // Immediately store the customer ID so we don't lose it if checkout fails
             const adminSupabase = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
             await adminSupabase.from('subscriptions').upsert({
-                user_id: session.user.id,
+                user_id: user.id,
                 stripe_customer_id: customerId,
                 status: 'active'
             }, { onConflict: 'user_id' });
@@ -55,7 +55,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
             payment_behavior: 'default_incomplete',
             expand: ['latest_invoice.payment_intent', 'latest_invoice.confirmation_secret'],
             metadata: {
-                user_id: session.user.id
+                user_id: user.id
             }
         });
 
@@ -69,7 +69,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         }
 
         await adminSupabase.from('subscriptions').upsert({
-            user_id: session.user.id,
+            user_id: user.id,
             stripe_customer_id: customerId,
             stripe_subscription_id: stripeSubscription.id,
             plan_id: priceId,

@@ -5,8 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 
-export const POST: RequestHandler = async ({ request, locals: { supabase, session } }) => {
-    if (!session) {
+export const POST: RequestHandler = async ({ request, locals: { supabase, session, user } }) => {
+    if (!session || !user) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,7 +42,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
         // 3. Immediately upsert into Supabase to guarantee state sync before webhooks
         const adminSupabase = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-        let userId = session.user.id;
+        let userId = user.id;
 
         const upsertData: any = {
             stripe_customer_id: customerId,

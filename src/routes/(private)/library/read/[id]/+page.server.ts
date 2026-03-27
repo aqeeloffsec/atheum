@@ -1,8 +1,8 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params, locals: { supabase, session } }) => {
-    if (!session) {
+export const load: PageServerLoad = async ({ params, locals: { supabase, session, user } }) => {
+    if (!session || !user) {
         throw redirect(303, '/login');
     }
 
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, session
     }
 
     // Ensure the book belongs to the user
-    if (book.user_id !== session.user.id) {
+    if (book.user_id !== user.id) {
         throw error(403, 'Unauthorized');
     }
 

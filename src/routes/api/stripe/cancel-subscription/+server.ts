@@ -5,8 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 
-export const POST: RequestHandler = async ({ locals: { supabase, session, getSubscription } }) => {
-    if (!session) {
+export const POST: RequestHandler = async ({ locals: { supabase, session, getSubscription, user } }) => {
+    if (!session || !user) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -32,7 +32,7 @@ export const POST: RequestHandler = async ({ locals: { supabase, session, getSub
                 stripe_subscription_id: null,
                 current_period_end: new Date().toISOString()
             })
-            .eq('user_id', session.user.id);
+            .eq('user_id', user.id);
 
         if (dbError) {
             console.error('Database sync error on cancel:', dbError);
