@@ -3,6 +3,7 @@
     import { goto } from "$app/navigation";
     import { getUserState } from "$lib/state/user-state.svelte";
     import SubscriptionStatus from "$lib/components/library/SubscriptionStatus.svelte";
+    import SkeletonGrid from "$lib/components/library/SkeletonGrid.svelte";
     
     let { data } = $props();
     let userContext = getUserState();
@@ -21,9 +22,10 @@
     });
 
     $effect(() => {
-        if (data.books) {
-            userContext.books = data.books;
-        }
+        userContext.books = null;
+        data.streamed.books.then((books) => {
+            userContext.books = books;
+        });
     });
 
     function openQuickView(book: any) {
@@ -38,7 +40,7 @@
     });
 
     let filteredBooks = $derived.by(() => {
-        if (!userContext.books) return [];
+        if (userContext.books === null || userContext.books === undefined) return null;
         let result = userContext.books;
 
         const sq = searchQuery.trim().toLowerCase();
@@ -147,7 +149,9 @@
         </div>
     </div>
     
-    {#if filteredBooks && filteredBooks.length > 0}
+    {#if filteredBooks === null}
+        <SkeletonGrid />
+    {:else if filteredBooks.length > 0}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
             {#each filteredBooks as book}
             <div 
@@ -159,7 +163,7 @@
                 aria-label="View details for {book.title}"
             >
                 <div class="relative aspect-2/3 rounded-xl overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300">
-                    <img alt={book.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={book.cover_image_url}>
+                    <img loading="lazy" decoding="async" alt={book.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src={book.cover_image_url}>
                     <div class="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                         <div class="flex gap-2">
                             <span class="bg-white/90 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-[#1a232e] uppercase tracking-wider">Quick View</span>

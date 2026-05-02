@@ -66,7 +66,7 @@
                                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                             </svg>
                         </div>
-                        <input placeholder="you@example.com" autocomplete="email" class="w-full py-3 rounded-[14px] border bg-[#fdfaf6] text-[#1a232e] text-sm transition-all outline-none placeholder:text-gray-300 pl-10 pr-4 border-[#e6e0d4] focus:border-[#1a232e]/40 focus:ring-2 focus:ring-[#1a232e]/8" type="email" value="">
+                        <input placeholder="you@example.com" autocomplete="email" class="w-full py-3 min-h-[48px] rounded-[14px] border bg-[#fdfaf6] text-[#1a232e] text-sm transition-all outline-none placeholder:text-gray-300 pl-10 pr-4 border-[#e6e0d4] focus:border-[#1a232e]/40 focus:ring-2 focus:ring-[#1a232e]/8" type="email" value="">
                     </div>
                 </div>
                 <button type="submit" class="w-full flex items-center cursor-pointer justify-center gap-2.5 bg-[#1a232e] text-white py-3.5 rounded-[14px] font-bold text-sm hover:bg-[#2d3b4b] hover:shadow-lg transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed mt-2">Send Reset Link 
@@ -75,7 +75,7 @@
                         <path d="m12 5 7 7-7 7"></path>
                     </svg>
                 </button>
-                <a href="/login" class="w-full py-3 flex justify-center text-sm font-medium cursor-pointer text-gray-500 hover:text-[#1a232e] transition-colors">Cancel — return to sign in</a>
+                <a href="/login" class="w-full py-3 min-h-[48px] flex justify-center items-center text-sm font-medium cursor-pointer text-gray-500 hover:text-[#1a232e] transition-colors">Cancel — return to sign in</a>
             </form>
         </div>
     </div>

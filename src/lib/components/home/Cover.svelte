@@ -157,7 +157,7 @@
             bind:this={descRef}
             class="text-base md:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed mb-10 px-2"
         >
-            Atheum is a beautifully designed personal book library. Track your reading journey, organize your collection, and rediscover the joy of books.
+            Atheum is your premium digital library. Track your reading journey, organize your collection, and <strong>generate complete, professional ebooks</strong> on any topic with advanced AI.
         </p>
 
         <div 
@@ -208,13 +208,13 @@
             </button>
         </div>
 
-        <div 
+        <div
             bind:this={booksRef}
-            class="relative flex justify-center items-end gap-5 md:gap-10 lg:gap-14 h-88 sm:h-96 md:h-128 mb-8"
+            class="relative flex justify-center items-end gap-2 sm:gap-5 md:gap-6 lg:gap-8 h-56 min-[400px]:h-64 sm:h-80 md:h-96 lg:h-128 mb-6"
         >
-            <div class="book-item group relative cursor-pointer w-32 sm:w-40 md:w-52 lg:w-60 -mb-5 -rotate-8">
+            <div class="book-item group relative cursor-pointer w-24 min-[400px]:w-32 sm:w-40 md:w-52 lg:w-60 -mb-5 -rotate-8 z-10 shrink-0">
                 <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 will-change-transform group-hover:-translate-y-4 group-hover:scale-[1.03] group-hover:rotate-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)] z-0 group-hover:z-50">
-                    <img alt="The Shadow of the Wind" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1667039487487-2af414218c49?auto=format&fit=crop&q=80&w=600&h=900">
+                    <img alt="The Shadow of the Wind" decoding="async" width="600" height="900" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1667039487487-2af414218c49?auto=format&fit=crop&q=60&fm=webp&w=600&h=900">
                     <div class="absolute inset-0 bg-linear-to-t from-[#1a232e]/90 via-[#1a232e]/20 to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-left transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
                         <p class="font-serif font-bold text-white text-sm sm:text-base md:text-xl leading-tight line-clamp-2 drop-shadow-md">The Design of Everyday Things</p>
@@ -223,10 +223,10 @@
                 </div>
             </div>
 
-            <div class="book-item group relative cursor-pointer w-40 sm:w-48 md:w-64 lg:w-72 z-20 mb-0">
+            <div class="book-item group relative cursor-pointer w-32 min-[400px]:w-40 sm:w-48 md:w-64 lg:w-72 z-20 mb-0 shrink-0">
                 <div class="absolute -inset-4 md:-inset-6 bg-amber-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 will-change-transform scale-90 group-hover:scale-100"></div>
                 <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] transition-all duration-500 will-change-transform group-hover:-translate-y-6 group-hover:scale-[1.05] group-hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_2px_10px_0_rgba(255,255,255,0.15)] bg-[#1a232e]">
-                    <img alt="Pride and Prejudice" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" src="https://images.unsplash.com/photo-1591202928585-ae660165f73c?auto=format&fit=crop&q=80&w=600&h=900">
+                    <img alt="Pride and Prejudice" decoding="async" width="600" height="900" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" src="https://images.unsplash.com/photo-1591202928585-ae660165f73c?auto=format&fit=crop&q=60&fm=webp&w=600&h=900">
                     <div class="absolute inset-0 bg-linear-to-t from-[#1a232e] via-[#1a232e]/30 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-5 md:p-8 text-left transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                         <p class="font-serif font-bold text-white text-base sm:text-lg md:text-2xl leading-tight line-clamp-2 drop-shadow-lg">The Communication Book</p>
@@ -238,9 +238,9 @@
                 <div class="absolute -top-3 -right-3 md:-top-5 md:-right-5 bg-linear-to-br from-emerald-400 to-emerald-600 text-white text-[10px] md:text-xs lg:text-sm font-bold px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl shadow-xl uppercase tracking-widest transform group-hover:scale-110 transition-all duration-500 border border-emerald-300/30 z-30">★ Featured</div>
             </div>
 
-            <div class="book-item group relative cursor-pointer w-32 sm:w-40 md:w-52 lg:w-60 z-10 -mb-5 rotate-8">
+            <div class="book-item group relative cursor-pointer w-24 min-[400px]:w-32 sm:w-40 md:w-52 lg:w-60 z-10 -mb-5 rotate-8 shrink-0">
                 <div class="relative aspect-2/3 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 will-change-transform group-hover:-translate-y-4 group-hover:scale-[1.03] group-hover:-rotate-2 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] border border-white/20 after:absolute after:inset-0 after:rounded-2xl md:after:rounded-3xl after:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.15)]">
-                    <img alt="Dune" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&amp;fit=crop&amp;q=80&amp;w=600&amp;h=900">
+                    <img alt="Dune" decoding="async" width="600" height="900" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&amp;fit=crop&amp;q=60&amp;fm=webp&amp;w=600&amp;h=900">
                     <div class="absolute inset-0 bg-linear-to-t from-[#1a232e]/90 via-[#1a232e]/20 to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-left transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500">
                         <p class="font-serif font-bold text-white text-sm sm:text-base md:text-xl leading-tight line-clamp-2 drop-shadow-md">How Innovation Works</p>

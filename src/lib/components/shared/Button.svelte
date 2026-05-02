@@ -33,10 +33,10 @@
     };
 
     const sizeClasses = {
-        sm: 'px-4 py-2 text-sm rounded-xl',
-        default: 'px-5 py-2.5 text-sm rounded-[14px]',
-        lg: 'px-8 py-4 text-base rounded-2xl',
-        icon: 'p-2 rounded-lg',
+        sm: 'px-4 py-2 min-h-[48px] text-sm rounded-xl',
+        default: 'px-5 py-2.5 min-h-[48px] text-sm rounded-[14px]',
+        lg: 'px-8 py-4 min-h-[56px] text-base rounded-2xl',
+        icon: 'p-3 min-w-[48px] min-h-[48px] rounded-lg',
         none: ''
     }
 

@@ -66,7 +66,7 @@
         </div>
         
         <h2 class="font-serif text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">Your library is waiting to be built.</h2>
-        <p class="text-gray-400 text-base sm:text-lg mb-10 leading-relaxed px-2">Every reader deserves a beautiful, organised collection. Start adding books today — it's completely free.</p>
+        <p class="text-gray-400 text-base sm:text-lg mb-10 leading-relaxed px-2">Every reader deserves a beautiful, organized collection. Start adding books or generate your own AI ebooks today.</p>
         
         <div class="flex flex-wrap justify-center gap-4">
             <a href="/library" bind:this={buttonRef} class="group w-full sm:w-auto flex items-center justify-center gap-3 bg-[#fdfaf6] text-[#1a232e] px-10 py-4 rounded-2xl font-bold text-base shadow-xl hover:bg-white hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-200">

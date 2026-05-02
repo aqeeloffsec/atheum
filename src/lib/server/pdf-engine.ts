@@ -119,6 +119,9 @@ function buildDocDefinition(
 ): TDocumentDefinitions {
 	const content: Content[] = [];
 
+	// A4 standard width is 595.28 pt. With side margins of 50 each, content width is 495.28 pt.
+	const contentWidth = 495;
+
 	// ===== COVER PAGE =====
 	const coverStack: any[] = [
 		{ text: '', margin: [0, 60, 0, 0] as [number, number, number, number] }, // spacer
@@ -132,7 +135,7 @@ function buildDocDefinition(
 			margin: [0, 20, 0, 30] as [number, number, number, number]
 		});
 	} else {
-		coverStack.push({ text: '', margin: [0, 60, 0, 0] as [number, number, number, number] });
+		coverStack.push({ text: '', margin: [0, 80, 0, 0] as [number, number, number, number] });
 	}
 
 	coverStack.push(
@@ -141,25 +144,25 @@ function buildDocDefinition(
 				{
 					type: 'rect',
 					x: 0, y: 0,
-					w: 515, h: 4,
+					w: contentWidth, h: 4,
 					color: '#D4A853' // gold accent line
 				}
 			]
 		},
-		{ text: title, style: 'coverTitle', margin: [0, 30, 0, 10] as [number, number, number, number] },
+		{ text: title, style: 'coverTitle', margin: [0, 40, 0, 20] as [number, number, number, number] },
 		{
 			canvas: [
 				{
 					type: 'rect',
 					x: 0, y: 0,
-					w: 515, h: 2,
+					w: contentWidth, h: 2,
 					color: '#D4A853'
 				}
 			]
 		},
-		{ text: `By ${author}`, style: 'coverAuthor', margin: [0, 20, 0, 0] as [number, number, number, number] },
-		{ text: 'AI-Generated Premium Ebook', style: 'coverSubtitle', margin: [0, 10, 0, 0] as [number, number, number, number] },
-		{ text: `Generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, style: 'coverDate', margin: [0, 40, 0, 0] as [number, number, number, number] }
+		{ text: `By ${author}`, style: 'coverAuthor', margin: [0, 30, 0, 0] as [number, number, number, number] },
+		{ text: 'AI-Generated Premium Ebook', style: 'coverSubtitle', margin: [0, 15, 0, 0] as [number, number, number, number] },
+		{ text: `Generated on ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`, style: 'coverDate', margin: [0, 60, 0, 0] as [number, number, number, number] }
 	);
 
 	content.push({
@@ -169,7 +172,7 @@ function buildDocDefinition(
 
 	// ===== TABLE OF CONTENTS =====
 	content.push(
-		{ text: 'Table of Contents', style: 'tocTitle', margin: [0, 20, 0, 20] as [number, number, number, number] },
+		{ text: 'Table of Contents', style: 'tocTitle', margin: [0, 40, 0, 30] as [number, number, number, number] },
 		{
 			toc: {
 				title: { text: '', style: 'tocTitle' }
@@ -180,32 +183,56 @@ function buildDocDefinition(
 
 	// ===== BODY CONTENT =====
 	let isFirstChapter = true;
+	let currentChapterNumber = 0;
+	let skippedDocumentTitle = false;
+
 	for (const section of sections) {
 		switch (section.type) {
 			case 'h1':
+				// The markdown prepends the Book Title as the first H1, which is already on the cover.
+				if (!skippedDocumentTitle) {
+					skippedDocumentTitle = true;
+					continue; // skip rendering the book title in the body
+				}
+
 				// Each H1 = new chapter with page break (except the very first after TOC)
 				if (!isFirstChapter) {
 					content.push({ text: '', pageBreak: 'before' as const });
 				}
 				isFirstChapter = false;
+				currentChapterNumber++;
+				
+				// Chapter Spacer
+				content.push({ text: '', margin: [0, 40, 0, 0] as [number, number, number, number] });
+				
+				// Chapter Number Label Subtitle
+				content.push({
+					text: `CHAPTER ${currentChapterNumber}`,
+					style: 'chapterLabel',
+					margin: [0, 0, 0, 8] as [number, number, number, number]
+				});
+
 				content.push({
 					text: section.text,
 					style: 'chapterTitle',
 					tocItem: true,
-					tocMargin: [0, 4, 0, 4] as [number, number, number, number]
+					tocMargin: [0, 6, 0, 6] as [number, number, number, number]
 				} as ContentTocItem);
+				
 				// Gold underline for chapter
 				content.push({
 					canvas: [
 						{
 							type: 'rect',
 							x: 0, y: 0,
-							w: 515, h: 3,
+							w: contentWidth, h: 3,
 							color: '#D4A853'
 						}
 					],
-					margin: [0, 4, 0, 16] as [number, number, number, number]
+					margin: [0, 8, 0, 30] as [number, number, number, number]
 				});
+				// First paragraph of chapter might need dropcap styling but pdfmake lacks native dropcaps
+				// We'll just define the body text below.
 				break;
 
 			case 'h2':
@@ -213,7 +240,7 @@ function buildDocDefinition(
 					text: section.text,
 					style: 'sectionTitle',
 					tocItem: true,
-					tocMargin: [20, 2, 0, 2] as [number, number, number, number]
+					tocMargin: [20, 4, 0, 4] as [number, number, number, number]
 				} as ContentTocItem);
 				break;
 
@@ -222,7 +249,7 @@ function buildDocDefinition(
 					text: section.text,
 					style: 'subsectionTitle',
 					tocItem: true,
-					tocMargin: [40, 1, 0, 1] as [number, number, number, number]
+					tocMargin: [40, 2, 0, 2] as [number, number, number, number]
 				} as ContentTocItem);
 				break;
 
@@ -230,15 +257,15 @@ function buildDocDefinition(
 				content.push({
 					text: section.text,
 					style: 'body',
-					margin: [0, 0, 0, 8] as [number, number, number, number]
+					margin: [0, 0, 0, 12] as [number, number, number, number]
 				});
 				break;
 
 			case 'list-item':
 				content.push({
-					text: `  •  ${section.text}`,
+					text: `  •   ${section.text}`,
 					style: 'listItem',
-					margin: [12, 0, 0, 4] as [number, number, number, number]
+					margin: [16, 0, 0, 6] as [number, number, number, number]
 				});
 				break;
 
@@ -246,8 +273,8 @@ function buildDocDefinition(
 				content.push({
 					text: section.text,
 					style: 'codeBlock',
-					margin: [0, 4, 0, 8] as [number, number, number, number],
-					background: '#F3F4F6'
+					margin: [0, 8, 0, 12] as [number, number, number, number],
+					background: '#F8FAFC' // Lighter, modern slate
 				} as Content);
 				break;
 		}
@@ -258,95 +285,124 @@ function buildDocDefinition(
 		defaultStyle: {
 			font: 'Roboto',
 			fontSize: 11,
-			lineHeight: 1.5
+			lineHeight: 1.6
 		},
 		styles: {
 			coverTitle: {
-				fontSize: 36,
+				fontSize: 42,
 				bold: true,
-				color: '#1A232E',
-				alignment: 'center' as const
+				color: '#0F172A',
+				alignment: 'center' as const,
+				lineHeight: 1.2
 			},
 			coverAuthor: {
-				fontSize: 16,
-				color: '#555555',
+				fontSize: 18,
+				color: '#475569',
 				alignment: 'center' as const,
 				italics: true
 			},
 			coverSubtitle: {
-				fontSize: 12,
-				color: '#888888',
-				alignment: 'center' as const
+				fontSize: 14,
+				color: '#64748B',
+				alignment: 'center' as const,
+				characterSpacing: 2
 			},
 			coverDate: {
-				fontSize: 10,
-				color: '#AAAAAA',
+				fontSize: 11,
+				color: '#94A3B8',
 				alignment: 'center' as const
 			},
 			tocTitle: {
-				fontSize: 24,
+				fontSize: 28,
 				bold: true,
-				color: '#1A232E'
+				color: '#0F172A'
+			},
+			chapterLabel: {
+				fontSize: 12,
+				bold: true,
+				color: '#D4A853',
+				characterSpacing: 3
 			},
 			chapterTitle: {
-				fontSize: 26,
+				fontSize: 32,
 				bold: true,
-				color: '#1A232E',
-				margin: [0, 8, 0, 4] as [number, number, number, number]
+				color: '#0F172A',
+				lineHeight: 1.2
 			},
 			sectionTitle: {
-				fontSize: 18,
+				fontSize: 20,
 				bold: true,
-				color: '#2D3B4B',
-				margin: [0, 16, 0, 8] as [number, number, number, number]
+				color: '#1E293B',
+				margin: [0, 24, 0, 10] as [number, number, number, number]
 			},
 			subsectionTitle: {
-				fontSize: 14,
+				fontSize: 16,
 				bold: true,
-				color: '#444444',
-				margin: [0, 12, 0, 6] as [number, number, number, number]
+				color: '#334155',
+				margin: [0, 16, 0, 8] as [number, number, number, number]
 			},
 			body: {
 				fontSize: 11,
-				color: '#333333',
-				lineHeight: 1.6
+				color: '#334155',
+				lineHeight: 1.7,
+				alignment: 'justify' as const
 			},
 			listItem: {
 				fontSize: 11,
-				color: '#333333',
-				lineHeight: 1.5
+				color: '#334155',
+				lineHeight: 1.6,
+				alignment: 'left' as const
 			},
 			codeBlock: {
-				fontSize: 9,
+				fontSize: 9.5,
 				font: 'Roboto',
-				color: '#1A232E',
-				lineHeight: 1.3,
+				color: '#0F172A',
+				lineHeight: 1.4,
 				preserveLeadingSpaces: true
 			}
 		},
 		pageSize: 'A4' as const,
-		pageMargins: [40, 60, 40, 60] as [number, number, number, number],
+		// Standardized wider margins for 2026 aesthetics
+		pageMargins: [50, 70, 50, 70] as [number, number, number, number],
 		footer: function (currentPage: number, pageCount: number) {
-			// Skip page number on cover (page 1)
-			if (currentPage === 1) return { text: '' };
+			if (currentPage <= 2) return null; // No footer on cover or TOC
+			
+			// Alternating footer layout for odd/even pages (facing pages)
+			const isEven = currentPage % 2 === 0;
 			return {
 				columns: [
-					{ text: title, alignment: 'left' as const, fontSize: 8, color: '#AAAAAA', margin: [40, 0, 0, 0] as [number, number, number, number] },
-					{ text: `Page ${currentPage} of ${pageCount}`, alignment: 'right' as const, fontSize: 8, color: '#AAAAAA', margin: [0, 0, 40, 0] as [number, number, number, number] }
+					{ 
+						text: isEven ? `${currentPage}` : title, 
+						alignment: 'left' as const, 
+						fontSize: 9, 
+						color: '#94A3B8', 
+						margin: [50, 10, 0, 0] as [number, number, number, number]
+					},
+					{ 
+						text: isEven ? title : `${currentPage}`, 
+						alignment: 'right' as const, 
+						fontSize: 9, 
+						color: '#94A3B8', 
+						margin: [0, 10, 50, 0] as [number, number, number, number] 
+					}
 				],
-				margin: [0, 20, 0, 0] as [number, number, number, number]
+				margin: [0, 0, 0, 0] as [number, number, number, number]
 			};
 		},
 		header: function (currentPage: number) {
-			if (currentPage <= 2) return { text: '' };
+			if (currentPage <= 2) return null; // No header on cover or TOC
+			
+			// Alternating header line to match
+			const isEven = currentPage % 2 === 0;
 			return {
-				canvas: [
-					{
-						type: 'line' as const,
-						x1: 40, y1: 50,
-						x2: 555, y2: 50,
-						lineWidth: 0.5,
-						lineColor: '#E5E7EB'
+				columns: [
+					{ 
+						text: isEven ? author : title, 
+						alignment: isEven ? ('left' as const) : ('right' as const), 
+						fontSize: 9, 
+						color: '#64748B', 
+						italics: true,
+						margin: [50, 40, 50, 0] as [number, number, number, number]
 					}
 				]
 			};

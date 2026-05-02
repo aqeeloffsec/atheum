@@ -5,6 +5,7 @@
     import { fade } from 'svelte/transition';
     import { invalidateAll } from '$app/navigation';
     import { page } from '$app/state';
+    import ConfirmSwitchToFreeModal from '$lib/components/library/ConfirmSwitchToFreeModal.svelte';
 
     import { Elements, PaymentElement } from 'svelte-stripe';
 
@@ -23,6 +24,82 @@
     let isProcessingPayment = $state(false);
     let paymentSuccess = $state(false);
     let paymentError = $state<string | null>(null);
+    let showCancelConfirm = $state(false);
+    let cancelError = $state<string | null>(null);
+    let upgradeError = $state<string | null>(null);
+    let checkoutInitError = $state<string | null>(null);
+
+    async function handleCancelSubscription() {
+        isLoading = true;
+        cancelError = null;
+        try {
+            const response = await fetch('/api/stripe/cancel-subscription', {
+                method: 'POST'
+            });
+            const resData = await response.json();
+
+            if (resData.success) {
+                localPlan = 'free'; // Instant UI feedback!
+                await invalidateAll();
+                localPlan = null;
+            } else {
+                cancelError = resData.error || 'Failed to cancel plan.';
+            }
+        } catch (err) {
+            console.error('Cancel error:', err);
+            cancelError = 'An error occurred while canceling the plan.';
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    const handleUpgradeRequest = async (priceId: string) => {
+        pendingPriceId = priceId;
+
+        if (priceId === 'free') {
+            showCancelConfirm = true;
+            return;
+        }
+
+        isLoading = true;
+        upgradeError = null;
+        checkoutInitError = null;
+
+        try {
+            // Check if user already has an active plan
+            const isUpgradeExisting = data.subscription?.status === 'active' && data.subscription?.plan_id !== 'free';
+            const endpoint = isUpgradeExisting ? '/api/stripe/upgrade' : '/api/stripe/create-subscription';
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ priceId })
+            });
+            const resData = await response.json();
+
+            if (isUpgradeExisting) {
+                 if (resData.success) {
+                    localPlan = priceId; // Instant UI feedback!
+                    await invalidateAll();
+                    localPlan = null;
+                } else {
+                    upgradeError = resData.error || 'Failed to upgrade plan.';
+                }
+            } else {
+                if (resData.clientSecret) {
+                    clientSecret = resData.clientSecret;
+                    currentSubscriptionId = resData.subscriptionId;
+                } else {
+                    checkoutInitError = resData.error || 'Failed to initialize checkout';
+                }
+            }
+        } catch (err) {
+            console.error('Upgrade error:', err);
+            checkoutInitError = 'An error occurred while initializing checkout.';
+        } finally {
+            isLoading = false;
+        }
+    };
 
     // If Stripe redirects us after successful 3DS Authentication, we need to automatically verify!
     $effect(() => {
@@ -62,76 +139,6 @@
         });
     });
 
-    // This handles intercepting the "Upgrade" clicks from the Pricing grid and initiating Checkout directly on this page
-    async function handleUpgradeRequest(priceId: string) {
-        pendingPriceId = priceId;
-
-        if (priceId === 'free') {
-            const confirmed = confirm("Are you sure you want to cancel your plan?");
-            if (!confirmed) return;
-            
-            isLoading = true;
-            try {
-                const response = await fetch('/api/stripe/cancel-subscription', {
-                    method: 'POST'
-                });
-                const resData = await response.json();
-                
-                if (resData.success) {
-                    localPlan = 'free'; // Instant UI feedback!
-                    await invalidateAll();
-                    localPlan = null; 
-                } else {
-                    alert(resData.error || 'Failed to cancel plan.');
-                }
-            } catch (err) {
-                console.error('Cancel error:', err);
-                alert('An error occurred while canceling the plan.');
-            } finally {
-                isLoading = false;
-            }
-            return;
-        }
-
-        isLoading = true;
-        
-        try {
-            // Check if user already has an active plan
-            const isUpgradeExisting = data.subscription?.status === 'active' && data.subscription?.plan_id !== 'free';
-            const endpoint = isUpgradeExisting ? '/api/stripe/upgrade' : '/api/stripe/create-subscription';
-            
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ priceId })
-            });
-            const resData = await response.json();
-
-            if (isUpgradeExisting) {
-                 if (resData.success) {
-                    localPlan = priceId; // Instant UI feedback!
-                    alert('Plan changed successfully! Your next invoice has been adjusted.');
-                    await invalidateAll();
-                    localPlan = null;
-                    isLoading = false;
-                } else {
-                    alert(resData.error || 'Failed to upgrade plan.');
-                    isLoading = false;
-                }
-            } else {
-                if (resData.clientSecret) {
-                    clientSecret = resData.clientSecret;
-                    currentSubscriptionId = resData.subscriptionId;
-                } else {
-                    alert(resData.error || 'Failed to initialize checkout');
-                    isLoading = false;
-                }
-            }
-        } catch (err) {
-            console.error('Upgrade error:', err);
-            isLoading = false;
-        }
-    }
 
     // Explicit Action so we bind exactly when the div is formed in the DOM
     let elementsInstance = $state<any>();
@@ -369,5 +376,13 @@
         <div class="rounded-3xl border border-[#e6e0d4] bg-white overflow-hidden shadow-sm" transition:fade>
             <Pricing isDashboardView={true} onUpgradeRequest={handleUpgradeRequest} currentPlan={activePlan} />
         </div>
+    {/if}
+
+    {#if showCancelConfirm}
+        <ConfirmSwitchToFreeModal
+            isOpen={showCancelConfirm}
+            onConfirm={handleCancelSubscription}
+            onCancel={() => showCancelConfirm = false}
+        />
     {/if}
 </div>

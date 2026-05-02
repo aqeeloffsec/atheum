@@ -17,7 +17,7 @@
     {#each navItems as item (item.key)}
         <button 
             onclick={() => scrollToSection(navigationState[item.key])} 
-            class="px-4 py-2 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all cursor-pointer"
+            class="px-4 min-h-[48px] flex items-center text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#1a232e]/5 rounded-xl transition-all cursor-pointer"
         >
             {item.label}
         </button>

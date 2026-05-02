@@ -5,21 +5,21 @@
             role: "Avid Reader · 120 books tracked",
             rating: 5,
             quote: "Atheum completely changed how I track my reading. The design is so beautiful I actually want to open it every day.",
-            image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100&h=100"
+            image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=60&fm=webp&w=100&h=100"
         },
         {
             name: "James T.",
             role: "Literature Professor · 340 books tracked",
             rating: 3,
             quote: "The bookish aesthetic is spot-on. It feels like a proper library on my screen. The slide-over detail view is my favourite feature.",
-            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100&h=100"
+            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=60&fm=webp&w=100&h=100"
         },
         {
             name: "Sophia K.",
             role: "Book Club Organiser · 87 books tracked",
             rating: 4,
             quote: "Finally, a reading tracker that doesn't look like a spreadsheet. The genre filtering and favorites shelf are incredibly useful.",
-            image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100&h=100"
+            image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=60&fm=webp&w=100&h=100"
         },
     ]
 </script>
@@ -47,7 +47,7 @@
                         <p class="text-gray-300 leading-relaxed text-sm italic">"{testimonial.quote}"</p>
                     </div>
                     <div class="flex flex-row items-center gap-3">
-                        <img alt="{testimonial.name}" class="w-10 h-10 rounded-full object-cover border-2 border-white/20" src="{testimonial.image}">
+                        <img alt="{testimonial.name}" loading="lazy" decoding="async" width="40" height="40" class="w-10 h-10 rounded-full object-cover border-2 border-white/20" src="{testimonial.image}">
                         <div>
                             <p class="font-bold text-white text-sm">{testimonial.name}</p>
                             <p class="text-gray-500 text-xs">{testimonial.role}</p>

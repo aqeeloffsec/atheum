@@ -19,7 +19,7 @@ interface ReturnObject {
 }
 
 export const actions: Actions = {
-    default: async ({ request, locals: { supabase } }) => {
+    default: async ({ request, cookies, locals: { supabase } }) => {
         await new Promise((fulfil) => setTimeout(fulfil, 1000));
 
         const formData = await request.formData();
@@ -103,6 +103,7 @@ export const actions: Actions = {
             //avatar_url
         });
 
+        cookies.set('auth_toast', 'Successfully authenticated', { path: '/', httpOnly: false, maxAge: 10 });
         redirect(303, '/library');
     }
 } satisfies Actions; 

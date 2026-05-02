@@ -1,6 +1,6 @@
 import { redirect, type RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
+export const GET: RequestHandler = async ({ url, cookies, locals: { supabase } }) => {
 	const code = url.searchParams.get('code') as string;
 	//const next = url.searchParams.get('next') ?? '/';
 
@@ -43,6 +43,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
             //return new Response("User already exists", { status: 400 })
         }
 
+        cookies.set('auth_toast', 'Successfully authenticated', { path: '/', httpOnly: false, maxAge: 10 });
         throw redirect(303, '/library');
     }
 

@@ -14,7 +14,7 @@ $inspect(user);
 
 <header class="flex items-center justify-between p-4 border-b border-[#e6e0d4] bg-white/50 backdrop-blur-md sticky top-0 z-30">
             <div class="flex items-center gap-4 flex-1">
-                <button onclick={() => userContext.isMobileMenuOpen = !userContext.isMobileMenuOpen} class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors" aria-label="Toggle Menu">
+                <button onclick={() => userContext.isMobileMenuOpen = !userContext.isMobileMenuOpen} class="lg:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors" aria-label="Toggle Menu">
                     {#if userContext.isMobileMenuOpen}
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x w-5 h-5" aria-hidden="true">
                             <path d="M18 6 6 18"></path>
@@ -28,7 +28,7 @@ $inspect(user);
                         </svg>
                     {/if}
                 </button>
-                <button onclick={() => userContext.isSidebarCollapsed = !userContext.isSidebarCollapsed} class="hidden lg:flex p-2 text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors" aria-label="Toggle Sidebar">
+                <button onclick={() => userContext.isSidebarCollapsed = !userContext.isSidebarCollapsed} class="hidden lg:flex p-3 min-h-[48px] min-w-[48px] items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg cursor-pointer transition-colors" aria-label="Toggle Sidebar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left-close w-5 h-5" aria-hidden="true">
                             <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
                             <path d="M9 3v18"></path>
@@ -44,11 +44,11 @@ $inspect(user);
                         <path d="m21 21-4.34-4.34"></path>
                         <circle cx="11" cy="11" r="8"></circle>
                     </svg>
-                    <input placeholder="Search by title or author..." class="w-full pl-10 pr-4 py-2.5 bg-[#f5f3f0] border-none rounded-xl focus:ring-2 focus:ring-[#1a232e]/10 transition-all outline-none text-sm" type="text" value="" />
+                    <input placeholder="Search by title or author..." class="w-full pl-10 pr-4 min-h-[48px] py-3 bg-[#f5f3f0] border-none rounded-xl focus:ring-2 focus:ring-[#1a232e]/10 transition-all outline-none text-sm" type="text" value="" />
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick={() => { userContext.isAddBookModalOpen = true; }} class="flex items-center gap-2 bg-[#1a232e] text-white px-4 py-2.5 rounded-xl hover:bg-[#2d3b4b] transition-all font-medium text-sm shadow-sm cursor-pointer">
+                <button onclick={() => { userContext.isAddBookModalOpen = true; }} class="flex items-center gap-2 bg-[#1a232e] text-white px-4 min-h-[48px] rounded-xl hover:bg-[#2d3b4b] transition-all font-medium text-sm shadow-sm cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4" aria-hidden="true">
                         <path d="M5 12h14"></path>
                         <path d="M12 5v14"></path>
@@ -69,7 +69,7 @@ $inspect(user);
                             loadingLogout = false;
                         };
                     }}>
-                        <button type="submit" disabled={loadingLogout} class="flex items-center gap-2 bg-[#1a232e] text-white px-4 py-2.5 rounded-xl hover:bg-[#2d3b4b] transition-all font-medium text-sm shadow-sm">
+                        <button type="submit" disabled={loadingLogout} class="flex items-center gap-2 bg-[#1a232e] text-white px-4 min-h-[48px] rounded-xl hover:bg-[#2d3b4b] transition-all font-medium text-sm shadow-sm">
                             {#if !loadingLogout}
                                 <svg 
                                     xmlns="http://www.w3.org/2000/svg" 

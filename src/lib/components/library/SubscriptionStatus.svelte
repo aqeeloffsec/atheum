@@ -72,13 +72,13 @@
                 <div class="flex gap-2">
                     <button 
                         onclick={handleUpgradeRoute}
-                        class="px-5 py-2.5 rounded-xl bg-amber-400 text-[#1a232e] font-bold text-sm text-center hover:bg-amber-300 transition-all shadow-lg hover:shadow-amber-400/20 cursor-pointer flex-1"
+                        class="px-5 py-2.5 min-h-[48px] rounded-xl bg-amber-400 text-[#1a232e] font-bold text-sm text-center hover:bg-amber-300 transition-all shadow-lg hover:shadow-amber-400/20 cursor-pointer"
                     >
                         View Upgrade Options
                     </button>
                     <button 
                          onclick={handleUpgradeRoute}
-                        class="px-5 py-2.5 rounded-xl bg-emerald-500 text-[#1a232e] font-bold text-sm text-center hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/20 cursor-pointer flex-1"
+                        class="px-5 py-2.5 min-h-[48px] rounded-xl bg-emerald-500 text-[#1a232e] font-bold text-sm text-center hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/20 cursor-pointer"
                     >
                         See All Plans
                     </button>
@@ -88,13 +88,13 @@
                     <button 
                         onclick={handlePortal}
                         disabled={isPortalLoading}
-                        class="px-5 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all disabled:opacity-50 cursor-pointer flex-1"
+                        class="px-5 py-2.5 min-h-[48px] rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all disabled:opacity-50 cursor-pointer"
                     >
                         {isPortalLoading ? 'Loading...' : 'Manage'}
                     </button>
                     <button 
                         onclick={handleUpgradeRoute}
-                        class="px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-sm text-center hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/20 cursor-pointer flex-2"
+                        class="px-5 py-2.5 min-h-[48px] rounded-xl bg-emerald-500 text-white font-bold text-sm text-center hover:bg-emerald-400 transition-all shadow-lg hover:shadow-emerald-500/20 cursor-pointer"
                     >
                         Explore Upgrades
                     </button>
@@ -103,7 +103,7 @@
                 <button 
                     onclick={handlePortal}
                     disabled={isPortalLoading}
-                    class="px-5 py-2.5 rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all disabled:opacity-50 cursor-pointer"
+                    class="px-5 py-2.5 min-h-[48px] rounded-xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all disabled:opacity-50 cursor-pointer"
                 >
                     {isPortalLoading ? 'Loading...' : 'Manage Billing'}
                 </button>

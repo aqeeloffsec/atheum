@@ -65,7 +65,7 @@
         {#each navItems as item (item.key)}
             <button 
                 onclick={() => handleNavClick(item.key)} 
-                class="w-full text-left block px-4 py-3 text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#f5f3f0] rounded-xl transition-all cursor-pointer"
+                class="w-full flex items-center text-left px-4 min-h-[48px] text-sm font-medium text-gray-600 hover:text-[#1a232e] hover:bg-[#f5f3f0] rounded-xl transition-all cursor-pointer"
             >
                 {item.label}
             </button>

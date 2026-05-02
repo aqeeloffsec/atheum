@@ -13,7 +13,7 @@ interface ReturnObject {
 }
 
 export const actions = {
-    default: async ({ request, locals: { supabase } }) => {
+    default: async ({ request, cookies, locals: { supabase } }) => {
         await new Promise((fulfil) => setTimeout(fulfil, 1000));
 
         const formData = await request.formData();
@@ -63,6 +63,7 @@ export const actions = {
             return fail(400, returnObject as any);
         }
 
+        cookies.set('auth_toast', 'Successfully authenticated', { path: '/', httpOnly: false, maxAge: 10 });
         redirect(303, '/library');
     }
 } satisfies Actions;

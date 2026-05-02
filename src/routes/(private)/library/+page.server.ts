@@ -10,7 +10,7 @@ import {
 
 export const load: PageServerLoad = async ({ locals: { supabase, session, subscription, user }, url }) => {
     if (!session || !user) {
-        return { books: [], subscription: null };
+        return { streamed: { books: Promise.resolve([]) }, subscription: null };
     }
 
     let currentSubscription = subscription;
@@ -58,15 +58,18 @@ export const load: PageServerLoad = async ({ locals: { supabase, session, subscr
         .select('*')
         .order('created_at', { ascending: false });
 
-    const { data: books, error: fetchError } = await queryBuilder;
-
-    if (fetchError) {
-        console.error('Error fetching books:', fetchError);
-        return { books: [], subscription: currentSubscription };
-    }
+    const booksPromise = queryBuilder.then(({ data, error }) => {
+        if (error) {
+            console.error('Error fetching books:', error);
+            return [];
+        }
+        return data ?? [];
+    });
 
     return {
-        books: books ?? [],
+        streamed: {
+            books: booksPromise
+        },
         subscription: currentSubscription
     };
 };

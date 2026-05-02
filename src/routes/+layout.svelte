@@ -2,12 +2,15 @@
 	import '$lib/styles/app.css';
 
 	import { page } from '$app/state';
-	import { invalidate } from '$app/navigation';
+	import { invalidate, goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	import favicon from '$lib/assets/favicon.svg';
 	import { setUserState } from '$lib/state/user-state.svelte';
 
-	import { SvelteKitTopLoader } from 'sveltekit-top-loader';
+	import ProgressBar from '$lib/components/shared/ProgressBar.svelte';
+	import Toast from '$lib/components/shared/Toast.svelte';
+	import { toast } from '$lib/stores/toast.svelte';
 
 	let { children, data } = $props();
 	let {session, supabase} = $derived(data);
@@ -30,8 +33,18 @@
 			subscription.unsubscribe();
 		};
 	});
+
+	$effect(() => {
+		if (browser) {
+			const match = document.cookie.match(new RegExp('(^| )auth_toast=([^;]+)'));
+			if (match) {
+				toast.add(decodeURIComponent(match[2]), "success");
+				document.cookie = "auth_toast=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			}
+		}
+	});
 	
-	const isAuthPageRoute = $derived(['/sign-up', '/login', '/forgot-password'].includes(page.url.pathname));
+	const isAuthPageRoute = $derived(['/sign-up', '/login', '/forgot-password', '/reset-password'].includes(page.url.pathname));
 	const isProtectedPageRoute = $derived(['/library'].includes(page.url.pathname));
 </script>
 
@@ -43,10 +56,8 @@
 	<title>Atheum - Sanctuary for your digital library</title>
 </svelte:head>
 
-<SvelteKitTopLoader showSpinner={false} color="#1a232e" height={4}/>
-<main class="min-h-screen font-sans antialiased {isAuthPageRoute && 'flex bg-[#fdfaf6] overflow-y-hidden!'} {isProtectedPageRoute && 'flex h-screen w-full overflow-hidden bg-[#fdfaf6] text-[#333333] selection:bg-[#e6e0d4]'}">
+<ProgressBar />
+<Toast />
+<main class="min-h-screen font-sans antialiased overflow-x-hidden {isAuthPageRoute && 'flex bg-[#fdfaf6] overflow-y-hidden!'} {isProtectedPageRoute && 'flex h-screen w-full overflow-hidden bg-[#fdfaf6] text-[#333333] selection:bg-[#e6e0d4]'}">
 	{@render children()}
 </main>
-
-
-

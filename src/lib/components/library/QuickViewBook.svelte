@@ -46,7 +46,7 @@
                 <button 
                     onclick={close}
                     aria-label="Close Quick View" 
-                    class="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors cursor-pointer"
+                    class="p-2 min-h-[48px] min-w-[48px] flex items-center justify-center hover:bg-gray-100 rounded-full text-gray-500 transition-colors cursor-pointer"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x w-6 h-6" aria-hidden="true">
                         <path d="M18 6 6 18"></path>
@@ -58,7 +58,7 @@
                         onclick={handleLike} 
                         disabled={isLiking}
                         aria-label="Like Book" 
-                        class="p-2.5 rounded-xl border transition-all cursor-pointer {book.is_favorite ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:text-gray-600'}"
+                        class="p-2.5 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-xl border transition-all cursor-pointer {book.is_favorite ? 'border-red-200 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:text-gray-600'}"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-5 h-5 {book.is_favorite ? 'fill-red-500' : ''}" aria-hidden="true">
                             <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path>
@@ -87,7 +87,7 @@
                             type="submit" 
                             disabled={isDeleting}
                             aria-label="Delete Book" 
-                            class="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50"
+                            class="p-2.5 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-xl border border-gray-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer disabled:opacity-50"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2 lucide-trash-2 w-5 h-5 {isDeleting ? 'animate-pulse' : ''}" aria-hidden="true">
                                 <path d="M10 11v6"></path>
@@ -155,7 +155,7 @@
                             </svg>
                             Start Reading
                         </a>
-                        <button class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-[#f5f3f0] hover:bg-[#eceae7] text-[#1a232e] font-bold rounded-xl transition-all text-sm cursor-pointer">
+                        <button class="flex items-center justify-center gap-2 w-full py-3 px-4 min-h-[48px] bg-[#f5f3f0] hover:bg-[#eceae7] text-[#1a232e] font-bold rounded-xl transition-all text-sm cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bookmark w-4 h-4" aria-hidden="true">
                                 <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
                             </svg>

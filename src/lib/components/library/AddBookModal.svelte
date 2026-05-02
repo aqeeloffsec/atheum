@@ -87,22 +87,14 @@
                 <div>
                     <h3 class="text-2xl font-serif font-bold mb-4">Add to Collection</h3>
                     <p class="text-gray-400 text-sm leading-relaxed mb-6">Enter the details of the new addition to your personal library. You can now upload the PDF directly.</p>
-                    <button type="button" class="w-full py-3 bg-amber-400 text-[#1a232e] rounded-xl font-bold text-xs hover:bg-amber-300 transition-all shadow-lg flex items-center justify-center gap-2 mb-8">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles w-4 h-4" aria-hidden="true">
-                            <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path>
-                            <path d="M20 2v4"></path>
-                            <path d="M22 4h-4"></path>
-                            <circle cx="4" cy="20" r="2"></circle>
-                        </svg> Magic Autofill
+                    <button type="button" class="w-full py-3 min-h-[48px] bg-amber-400 text-[#1a232e] rounded-xl font-bold text-xs hover:bg-amber-300 transition-all shadow-lg flex items-center justify-center gap-2 mb-8 cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles w-4 h-4" aria-hidden="true"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg> Magic Autofill
                     </button>
                 </div>
                 <div class="hidden md:block">
                     {#if isExtracting}
                         <div class="aspect-2/3 bg-white/5 rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-6 text-center">
-                            <svg class="animate-spin mb-3 h-8 w-8 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
+                            <svg class="animate-spin mb-3 h-8 w-8 text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             <p class="text-xs text-white/60 font-medium">Extracting cover...</p>
                         </div>
                     {:else if coverPreview}
@@ -114,11 +106,7 @@
                         </div>
                     {:else}
                         <div class="aspect-2/3 bg-white/5 rounded-xl border-2 border-dashed border-white/20 flex flex-col items-center justify-center p-6 text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image w-8 h-8 text-white/30 mb-2" aria-hidden="true">
-                                <rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect>
-                                <circle cx="9" cy="9" r="2"></circle>
-                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
-                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image w-8 h-8 text-white/30 mb-2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg>
                             <p class="text-xs text-white/40 font-medium italic pr-2 pl-2">Upload a PDF to auto-extract the cover</p>
                         </div>
                     {/if}
@@ -154,11 +142,11 @@
                     {/if}
                     <div class="space-y-1">
                         <label for="title" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Book Title</label>
-                        <input name="title" id="title" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="e.g. The Midnight Library" />
+                        <input name="title" id="title" required class="w-full px-4 py-2.5 min-h-[48px] bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="e.g. The Midnight Library" />
                     </div>
                     <div class="space-y-1">
                         <label for="author" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Author</label>
-                        <input name="author" id="author" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="e.g. Matt Haig" />
+                        <input name="author" id="author" required class="w-full px-4 py-2.5 min-h-[48px] bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="e.g. Matt Haig" />
                     </div>
 
                     <div class="space-y-1">
@@ -173,7 +161,7 @@
                                 onchange={handleFileChange}
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             />
-                            <div class="w-full px-4 py-2.5 bg-amber-50 border border-dashed border-amber-300 rounded-xl flex items-center gap-3 text-sm text-amber-700 font-medium hover:bg-amber-100 transition-colors">
+                            <div class="w-full px-4 py-2.5 min-h-[48px] bg-amber-50 border border-dashed border-amber-300 rounded-xl flex items-center gap-3 text-sm text-amber-700 font-medium hover:bg-amber-100 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
                                 <span class="truncate">{fileName || "Choose PDF to extract cover..."}</span>
                             </div>
@@ -183,7 +171,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label for="genre" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Genre</label>
-                            <select name="genre" id="genre" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none text-sm appearance-none">
+                            <select name="genre" id="genre" class="w-full px-4 py-2.5 min-h-[48px] bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none text-sm appearance-none">
                                 <option value="Fiction">Fiction</option>
                                 <option value="Classic">Classic</option>
                                 <option value="Sci-Fi">Sci-Fi</option>
@@ -196,7 +184,7 @@
                         </div>
                         <div class="space-y-1">
                             <label for="status" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Status</label>
-                            <select name="status" id="status" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none text-sm appearance-none">
+                            <select name="status" id="status" class="w-full px-4 py-2.5 min-h-[48px] bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none text-sm appearance-none">
                                 <option value="All Books">In Collection</option>
                                 <option value="Currently Reading">Reading</option>
                                 <option value="Want to Read">To Read</option>
@@ -210,7 +198,7 @@
                             <span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">Auto-filled</span>
                             {/if}
                         </label>
-                        <input name="cover_image_url" id="cover_image_url" bind:value={coverPreview} class="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="https://images.unsplash.com/..." />
+                        <input name="cover_image_url" id="cover_image_url" bind:value={coverPreview} class="w-full px-4 py-2.5 min-h-[48px] bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-[#1a232e]/5 transition-all outline-none" placeholder="https://images.unsplash.com/..." />
                     </div>
                     <div class="space-y-1">
                         <label for="synopsis" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Synopsis</label>
@@ -221,8 +209,8 @@
                     {/if}
                 </div>
                 <div class="mt-8 flex gap-4">
-                    <button type="button" onclick={() => { userContext.isAddBookModalOpen = false; }} class="flex-1 px-4 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all cursor-pointer">Cancel</button>
-                    <button type="submit" disabled={loadingAdd || isExtracting} class="flex-2 px-8 py-3 bg-[#1a232e] text-white font-bold rounded-xl hover:bg-[#2d3b4b] transition-all shadow-lg disabled:opacity-70 flex justify-center items-center cursor-pointer">
+                    <button type="button" onclick={() => { userContext.isAddBookModalOpen = false; }} class="flex-1 px-4 py-3 min-h-[48px] border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all cursor-pointer">Cancel</button>
+                    <button type="submit" disabled={loadingAdd || isExtracting} class="flex-2 px-8 py-3 min-h-[48px] bg-[#1a232e] text-white font-bold rounded-xl hover:bg-[#2d3b4b] transition-all shadow-lg disabled:opacity-70 flex justify-center items-center cursor-pointer">
                         {#if loadingAdd || isExtracting}
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

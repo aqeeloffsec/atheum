@@ -89,7 +89,7 @@
                     </div>
                 </div>
             {/if}
-            <form method="POST" action="/google-auth" class="space-y-3 mb-5" use:enhance={() => {
+                <form method="POST" action="/google-auth" class="space-y-3 mb-5" use:enhance={() => {
                 loadingGoogleAuth = true;
 
                 return async ({ update }) => {
@@ -97,7 +97,7 @@
                     loadingGoogleAuth = false;
                 };
             }}>
-                <button type="submit" disabled={loadingGoogleAuth} class="flex items-center justify-center cursor-pointer gap-3 w-full py-3 px-4 rounded-[14px] border-2 border-[#e6e0d4] bg-white text-[#1a232e] text-sm font-semibold hover:border-[#1a232e]/30 hover:shadow-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                <button type="submit" disabled={loadingGoogleAuth} class="flex items-center justify-center cursor-pointer gap-3 w-full py-3.5 min-h-[48px] px-4 rounded-[14px] border-2 border-[#e6e0d4] bg-white text-[#1a232e] text-sm font-semibold hover:border-[#1a232e]/30 hover:shadow-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
@@ -172,8 +172,8 @@
                         {/snippet}
                 </Input>
                 <div class="space-y-1">
-                    <label class="flex items-start gap-2.5 group" for="terms">
-                        <input type="checkbox" name="terms" checked={form?.terms || false} class="w-4 h-4 rounded border-2 flex items-center focus:ring-0 focus:outline-none checked:bg-[#1a232e] checked:border-[#1a232e] checked:text-white justify-center transition-all shrink-0 mt-0.5 cursor-pointer {form && form.errors.terms?.length > 0 ? 'border-red-400' : 'border-[#c8c0b4] hover:border-[#1a232e]/50'}" />
+                    <label class="flex items-center gap-2.5 group min-h-[48px]" for="terms">
+                        <input type="checkbox" name="terms" checked={form?.terms || false} class="w-4 h-4 rounded border-2 flex items-center focus:ring-0 focus:outline-none checked:bg-[#1a232e] checked:border-[#1a232e] checked:text-white justify-center transition-all shrink-0 cursor-pointer {form && form.errors.terms?.length > 0 ? 'border-red-400' : 'border-[#c8c0b4] hover:border-[#1a232e]/50'}" />
                         <span class="text-xs text-gray-500 select-none leading-relaxed">I agree to the 
                             <a href="/" class="text-[#1a232e] font-bold hover:underline">Terms of Service</a> and 
                             <a href="/" class="text-[#1a232e] font-bold hover:underline">Privacy Policy</a>

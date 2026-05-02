@@ -2,6 +2,8 @@
     import gsap from "gsap";
     import ScrollTrigger from "gsap/ScrollTrigger";
 
+    let { stats = { books: 12400, users: 3800, ebooks: 450, stars: 99 } } = $props();
+
     let sectionRef = $state<HTMLElement>();
 
     $effect(() => {
@@ -9,11 +11,11 @@
         gsap.registerPlugin(ScrollTrigger);
 
         const ctx = gsap.context((self) => {
-            const stats = [
-                { target: 12400, suffix: "+" },
-                { target: 3800, suffix: "+" },
-                { target: 850, suffix: "k+" },
-                { target: 99, suffix: "%" }
+            const statsArray = [
+                { target: stats.books, suffix: "+" },
+                { target: stats.users, suffix: "+" },
+                { target: stats.ebooks, suffix: "+" },
+                { target: stats.stars, suffix: "%" }
             ];
 
             // Staggered entrance for stat items
@@ -34,7 +36,7 @@
             if (selector) {
                 const counterElements = selector(".stat-number");
                 counterElements.forEach((el: Element, i: number) => {
-                    const data = stats[i];
+                    const data = statsArray[i];
                     if (!data) return;
                     
                     const obj = { value: 0 };
@@ -107,8 +109,8 @@
                     <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path>
                 </svg>
             </div>
-            <p class="stat-number font-serif text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-1">850k+</p>
-            <p class="text-gray-400 text-xs sm:text-sm font-medium">Pages Read</p>
+            <p class="stat-number font-serif text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-1">450+</p>
+            <p class="text-gray-400 text-xs sm:text-sm font-medium">AI Ebooks Generated</p>
         </div>
 
         <div class="stat-item text-center">

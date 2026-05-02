@@ -6,6 +6,8 @@
     import { goto } from '$app/navigation';
 
     import { getUserState } from "$lib/state/user-state.svelte";
+    import ConfirmSwitchToFreeModal from '$lib/components/library/ConfirmSwitchToFreeModal.svelte';
+    import ConfirmDowngradeToScholarModal from '$lib/components/library/ConfirmDowngradeToScholarModal.svelte';
 
     let userContext = getUserState();
     let { user } = $derived(userContext);
@@ -14,22 +16,24 @@
     let headerRef = $state<HTMLElement>();
     let gridRef = $state<HTMLElement>();
     let isYearly = $state(false);
+    let showConfirmModal = $state(false);
+    let showDowngradeToScholarModal = $state(false);
 
-    let { 
-        isDashboardView = false, 
-        currentPlan = null, 
-        onUpgradeRequest = null 
+    let {
+        isDashboardView = false,
+        currentPlan = null,
+        onUpgradeRequest = null
     } = $props<{
-        isDashboardView?: boolean, 
+        isDashboardView?: boolean,
         currentPlan?: string | null,
-        onUpgradeRequest?: ((priceId: string) => void) | null 
+        onUpgradeRequest?: ((priceId: string) => void) | null
     }>();
 
     // Mapping from plan name to actual Stripe Price IDs based on interval selection
-    import { 
-        PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY, 
-        PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY, 
-        PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY, 
+    import {
+        PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY,
+        PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY,
+        PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY,
         PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY
     } from "$env/static/public";
 
@@ -80,6 +84,37 @@
 
         return () => ctx.revert();
     });
+
+    function openConfirmModal() {
+        showConfirmModal = true;
+    }
+
+    function closeConfirmModal() {
+        showConfirmModal = false;
+    }
+
+    function handleConfirmSwitchToFree() {
+        closeConfirmModal();
+        if (onUpgradeRequest) {
+            onUpgradeRequest('free');
+        }
+    }
+
+    function openDowngradeToScholarModal() {
+        showDowngradeToScholarModal = true;
+    }
+
+    function closeDowngradeToScholarModal() {
+        showDowngradeToScholarModal = false;
+    }
+
+    function handleConfirmDowngradeToScholar() {
+        closeDowngradeToScholarModal();
+        if (onUpgradeRequest) {
+            const priceId = isYearly ? PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY : PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY;
+            onUpgradeRequest(priceId);
+        }
+    }
 </script>
 
 <section bind:this={sectionRef} class="py-24 bg-[#f5f3f0] overflow-hidden">
@@ -108,7 +143,7 @@
             </div>
         </div>
 
-        <div bind:this={gridRef} class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div bind:this={gridRef} class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch max-w-md mx-auto md:max-w-none">
             <!-- Reader Plan -->
             <div class="pricing-card relative rounded-3xl border-2 p-8 flex flex-col bg-white border-[#e6e0d4]">
                 <div class="mb-6">
@@ -125,10 +160,16 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-600">Up to 4 books with maximum 300 pages each</span>
+                        <span class="text-sm text-gray-600">Up to 4 books · 300 pages each</span>
                     </li>
-
-                    <!--
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-[#1a232e]/8">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-[#1a232e]" aria-hidden="true">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-600">1 AI Ebook/mo (Playbooks/Cheatsheets, 22-25 pages)</span>
+                    </li>
                     <li class="flex items-center gap-3">
                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-[#1a232e]/8">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-[#1a232e]" aria-hidden="true">
@@ -143,17 +184,25 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-600">Search & filter</span>
+                        <span class="text-sm text-gray-600">Search & filter library</span>
                     </li>
-                    -->
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-red-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 text-red-400" aria-hidden="true">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-400">AI Ebook Generator not included</span>
+                    </li>
                 </ul>
-                <button 
+                <button
                     onclick={() => {
                         if (isDashboardView) {
                             if (currentPlan === 'free' || !currentPlan) {
                                 goto('/library');
                             } else if (onUpgradeRequest) {
-                                onUpgradeRequest('free');
+                                openConfirmModal();
                             }
                         } else {
                             goto((page.data.session && user) ? '/library/pricing' : '/login');
@@ -187,16 +236,23 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-300">Up to 20 books with maximum 600 pages each</span>
+                        <span class="text-sm text-gray-300">Up to 20 books · 600 pages each</span>
                     </li>
-                    <!--
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-amber-400/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 text-amber-400" aria-hidden="true">
+                                <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-amber-300 font-medium">10 AI Ebooks/mo (Academic & Standard, 240-300 pages)</span>
+                    </li>
                     <li class="flex items-center gap-3">
                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/20">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-white" aria-hidden="true">
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-300">Advanced features</span>
+                        <span class="text-sm text-gray-300">Professional PDF export</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/20">
@@ -204,15 +260,26 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-300">Cloud Sync</span>
+                        <span class="text-sm text-gray-300">Cover page & table of contents</span>
                     </li>
-                    -->
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-white/20">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-white" aria-hidden="true">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-300">Chapter-by-chapter AI writing</span>
+                    </li>
                 </ul>
                 <button 
                     onclick={() => {
-                        if (isDashboardView && onUpgradeRequest) {
-                            const priceId = isYearly ? PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY : PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY;
-                            onUpgradeRequest(priceId);
+                        if (isDashboardView) {
+                            if (currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_MONTHLY || currentPlan === PUBLIC_STRIPE_PRICE_LIBRARIAN_YEARLY) {
+                                openDowngradeToScholarModal();
+                            } else if (onUpgradeRequest) {
+                                const priceId = isYearly ? PUBLIC_STRIPE_PRICE_SCHOLAR_YEARLY : PUBLIC_STRIPE_PRICE_SCHOLAR_MONTHLY;
+                                onUpgradeRequest(priceId);
+                            }
                         } else {
                             goto((page.data.session && user) ? '/library/pricing' : '/login');
                         }
@@ -244,16 +311,23 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-600">Unlimited books with unlimited pages each</span>
+                        <span class="text-sm text-gray-600">Unlimited books · unlimited pages</span>
                     </li>
-                    <!--
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-amber-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3 text-amber-600" aria-hidden="true">
+                                <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-800 font-medium">25 AI Ebooks/mo (All Formats, 720-1000 pages)</span>
+                    </li>
                     <li class="flex items-center gap-3">
                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-[#1a232e]/8">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-[#1a232e]" aria-hidden="true">
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-600">Bulk Import</span>
+                        <span class="text-sm text-gray-600">Premium PDF with book typography</span>
                     </li>
                     <li class="flex items-center gap-3">
                         <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-[#1a232e]/8">
@@ -261,9 +335,16 @@
                                 <path d="M20 6 9 17l-5-5"></path>
                             </svg>
                         </div>
-                        <span class="text-sm text-gray-600">API Access</span>
+                        <span class="text-sm text-gray-600">Cover, TOC & chapter formatting</span>
                     </li>
-                    -->
+                    <li class="flex items-center gap-3">
+                        <div class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 bg-[#1a232e]/8">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check w-3 h-3 text-[#1a232e]" aria-hidden="true">
+                                <path d="M20 6 9 17l-5-5"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-600">Save to library & bulk import</span>
+                    </li>
                 </ul>
                 <button 
                     onclick={() => {
@@ -287,3 +368,15 @@
         </div>
     </div>
 </section>
+
+<ConfirmSwitchToFreeModal
+    isOpen={showConfirmModal}
+    onConfirm={handleConfirmSwitchToFree}
+    onCancel={closeConfirmModal}
+/>
+
+<ConfirmDowngradeToScholarModal
+    isOpen={showDowngradeToScholarModal}
+    onConfirm={handleConfirmDowngradeToScholar}
+    onCancel={closeDowngradeToScholarModal}
+/>

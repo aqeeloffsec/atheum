@@ -54,12 +54,12 @@
             {disabled}
             type={type === 'password' && showPassword ? 'text' : type}
             bind:value={value}
-            class="w-full py-3 rounded-[14px] border bg-[#fdfaf6] text-[#1a232e] text-sm transition-all outline-none placeholder:text-gray-300 {icon !== undefined ? 'pl-10' : 'pl-4'} {type === 'password' ? 'pr-10' : 'pr-4'} focus:ring-2 {className} {errorCondition ? errorFieldClass : normalFieldClass}"
+            class="w-full py-3 min-h-[48px] rounded-[14px] border bg-[#fdfaf6] text-[#1a232e] text-sm transition-all outline-none placeholder:text-gray-300 {icon !== undefined ? 'pl-10' : 'pl-4'} {type === 'password' ? 'pr-12' : 'pr-4'} focus:ring-2 {className} {errorCondition ? errorFieldClass : normalFieldClass}"
             {...restProps}
         />
 
         {#if type === 'password'}
-            <button type="button" onclick={togglePasswordVisibility} class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" aria-label={showPassword ? "Hide password" : "Show password"}>
+            <button type="button" onclick={togglePasswordVisibility} class="absolute right-1 top-0 bottom-0 px-3 flex items-center justify-center text-gray-400 cursor-pointer hover:text-gray-600 transition-colors" aria-label={showPassword ? "Hide password" : "Show password"}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-4 h-4" aria-hidden="true">
                     {#if !showPassword}
                         <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>

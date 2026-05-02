@@ -44,13 +44,15 @@
 		"vite": "^7.3.1",
 		"vite-plugin-devtools-json": "^1.0.0"
 	},
-	"packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
+	"packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
 	"dependencies": {
-		"@ai-sdk/google": "^3.0.43",
+		"@ai-sdk/google": "^3.0.66",
 		"@mastra/core": "^1.10.0",
+		"@openrouter/ai-sdk-provider": "^2.9.0",
 		"@stripe/stripe-js": "^8.9.0",
 		"@supabase/ssr": "^0.8.0",
 		"@supabase/supabase-js": "^2.97.0",
+		"ai": "^6.0.172",
 		"gsap": "^3.14.2",
 		"html-to-pdfmake": "^2.5.33",
 		"html2pdf.js": "^0.14.0",

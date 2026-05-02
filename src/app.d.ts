@@ -14,6 +14,7 @@ declare global {
     }
     interface PageData {
       session: Session | null
+      subscription: any | null
     }
     // interface PageState {}
     // interface Platform {}
