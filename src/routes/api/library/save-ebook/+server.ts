@@ -1,11 +1,10 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { generatePdfBuffer, extractTitle } from '$lib/server/pdf-engine';
-import { supabase } from '$lib/server/supabase';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
     try {
-        const { session, user } = locals;
+        const { session, user, supabase } = locals;
 
         if (!session || !user) {
             throw error(401, 'Unauthorized');
