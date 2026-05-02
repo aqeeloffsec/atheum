@@ -21,6 +21,7 @@
     let progressPhase = $state<'idle' | 'outlining' | 'writing' | 'finalizing' | 'completed'>('idle');
     let currentChapter = $state(0);
     let totalChapters = $state(0);
+    let completedChapters = $state(0);
     let currentChapterTitle = $state('');
     let ebookContent = $state('');
     let error = $state('');
@@ -28,7 +29,10 @@
     let canGenerate = $state(false);
     let coverImageUrl = $state('');
     let isGeneratingPdf = $state(false);
+    let isSavingToLibrary = $state(false);
+    let savedToLibrary = $state(false);
     let elapsedSeconds = $state(0);
+    let finalElapsedSeconds = $state(0);
     let timerInterval: ReturnType<typeof setInterval> | null = null;
 
     // ----- Plan State -----
@@ -62,9 +66,15 @@
         }
     });
 
+    // Scroll chat only when messages change
+    let prevMessageCount = $state(0);
     $effect(() => {
-        if (chatContainerRef) {
-            chatContainerRef.scrollTop = chatContainerRef.scrollHeight;
+        const count = messages.length;
+        if (chatContainerRef && count !== prevMessageCount) {
+            prevMessageCount = count;
+            tick().then(() => {
+                chatContainerRef.scrollTo({ top: chatContainerRef.scrollHeight, behavior: 'smooth' });
+            });
         }
     });
 
@@ -83,19 +93,31 @@
 
     let quotaRemaining = $derived(monthlyLimit - monthlyUsed);
 
+    // Dynamic progress percentage based on actual chapter progress
+    let progressPercent = $derived.by(() => {
+        if (progressPhase === 'idle') return 0;
+        if (progressPhase === 'outlining') return 10;
+        if (progressPhase === 'writing' && totalChapters > 0) {
+            // 10% for outline + 75% for writing, distributed across chapters
+            return 10 + Math.round((completedChapters / totalChapters) * 75);
+        }
+        if (progressPhase === 'finalizing') return 92;
+        if (progressPhase === 'completed') return 100;
+        return 0;
+    });
+
+    // Selected format description
+    let selectedFormatDescription = $derived(
+        availableFormats.find((f: any) => f.id === selectedFormat)?.description || ''
+    );
+
     async function handleChatSubmit() {
         if (!inputMessage.trim()) return;
-        
+
         const userMsg = inputMessage.trim();
         messages = [...messages, { role: 'user', content: userMsg }];
         inputMessage = '';
         isChatting = true;
-
-        // Auto-extract topic and format from user messages as a quick heuristic
-        if (!topic && userMsg.length > 5) {
-            // Very naive auto-fill for demo purposes; the real chat route does the heavy lifting
-            topic = userMsg; 
-        }
 
         try {
             const response = await fetch('/api/chat-brainstorm', {
@@ -105,22 +127,30 @@
             });
 
             if (!response.ok) throw new Error('Failed to chat');
-            
+
             const data = await response.json();
-            console.log('[chat] API response received:', data);
-            
+
             if (data.reply) {
                 messages = [...messages, { role: 'assistant', content: data.reply }];
+
+                // Use structured data if available for topic/format extraction
+                if (data.structured) {
+                    const structured = data.structured;
+                    if (structured.topic && !topic) {
+                        topic = structured.topic;
+                    }
+                    if (structured.format && !selectedFormat) {
+                        selectedFormat = structured.format;
+                    }
+                    if (structured.title && !customTitle) {
+                        customTitle = structured.title;
+                    }
+                }
             } else if (data.error) {
                 throw new Error(data.error);
             } else {
                 throw new Error('Empty response from editor assistant');
             }
-
-            // Simulate automatic extraction from AI if it suggests formats
-            if (data.reply.toLowerCase().includes('playbook')) selectedFormat = 'playbook';
-            if (data.reply.toLowerCase().includes('cheatsheet')) selectedFormat = 'cheatsheet';
-
         } catch (err: any) {
             console.error(err);
             messages = [...messages, { role: 'assistant', content: "I'm having trouble connecting right now. But feel free to manually set your book settings on the right panel and hit Generate!" }];
@@ -141,19 +171,21 @@
         progressMessage = 'Connecting to generation engine...';
         currentChapter = 0;
         totalChapters = 0;
+        completedChapters = 0;
         currentChapterTitle = '';
         ebookContent = '';
         coverImageUrl = '';
+        savedToLibrary = false;
         startTimer();
 
         // Add to chat
-        messages = [...messages, { 
-            role: 'user', 
-            content: `Start generating the book: \nTopic: ${topic}\nFormat: ${selectedFormat}` 
+        messages = [...messages, {
+            role: 'user',
+            content: `Start generating the book: \nTopic: ${topic}\nFormat: ${selectedFormat}`
         }];
-        messages = [...messages, { 
-            role: 'assistant', 
-            content: `Excellent. I have initiated the rendering engine for your ${selectedFormat.replace('_', ' ')}. You can watch the progression in the studio canvas!` 
+        messages = [...messages, {
+            role: 'assistant',
+            content: `Excellent. I have initiated the rendering engine for your ${selectedFormat.replace('_', ' ')}. You can watch the progression in the studio canvas!`
         }];
 
         await tick();
@@ -204,6 +236,9 @@
                         const message = JSON.parse(line);
                         if (message.error) throw new Error(message.error);
 
+                        // Skip keepalive pings
+                        if (message.status === 'keepalive') continue;
+
                         if (message.status === 'outlining') {
                             progressPhase = 'outlining';
                             totalChapters = message.totalChapters || 0;
@@ -213,23 +248,28 @@
                             currentChapter = message.chapter;
                             currentChapterTitle = message.title;
                             totalChapters = message.totalChapters || totalChapters;
+                            if (message.completedChapters !== undefined) {
+                                completedChapters = message.completedChapters;
+                            }
                             progressMessage = `Writing Chapter ${message.chapter} of ${totalChapters}: ${message.title}`;
                         } else if (message.status === 'finalizing') {
                             progressPhase = 'finalizing';
-                            progressMessage = 'Polishing final touches and generating cover...';
+                            completedChapters = totalChapters;
+                            progressMessage = 'Polishing final touches and assembling document...';
                         } else if (message.status === 'completed') {
                             ebookContent = message.content || '';
                             coverImageUrl = message.coverImageUrl || '';
                             progressPhase = 'completed';
                             success = true;
                             generating = false;
+                            finalElapsedSeconds = elapsedSeconds;
                             monthlyUsed += 1;
                             canGenerate = monthlyUsed < monthlyLimit;
                             stopTimer();
-                            
-                            messages = [...messages, { 
-                                role: 'assistant', 
-                                content: `Your book is complete! Check the studio canvas on the right to read and download your finished piece.` 
+
+                            messages = [...messages, {
+                                role: 'assistant',
+                                content: `Your book is complete! Check the studio canvas on the right to read, download, or save your finished piece.`
                             }];
 
                             await tick();
@@ -281,6 +321,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         } catch (err) {
             console.error('PDF generation error:', err);
             error = 'Failed to generate PDF. Please try again.';
@@ -289,8 +330,171 @@
         }
     }
 
+    async function saveToLibrary() {
+        if (!ebookContent || savedToLibrary) return;
+        isSavingToLibrary = true;
+        error = '';
+        try {
+            const formData = new FormData();
+            formData.append('topic', topic.trim());
+            formData.append('content', ebookContent);
+            formData.append('title', customTitle.trim() || `The Complete Guide to ${topic}`);
+
+            const response = await fetch('/api/library/save-ebook', { method: 'POST', body: formData });
+            if (!response.ok) {
+                const result = await response.json().catch(() => ({}));
+                throw new Error(result.message || 'Failed to save to library');
+            }
+
+            savedToLibrary = true;
+            badge.show('Ebook saved to your library!', 'success');
+            messages = [...messages, {
+                role: 'assistant',
+                content: 'Your ebook has been saved to your library! You can access it anytime from the Library page.'
+            }];
+        } catch (err: any) {
+            console.error('Save to library error:', err);
+            error = err.message || 'Failed to save to library.';
+        } finally {
+            isSavingToLibrary = false;
+        }
+    }
+
+    function startNew() {
+        success = false;
+        ebookContent = '';
+        coverImageUrl = '';
+        topic = '';
+        customTitle = '';
+        selectedFormat = availableFormats.length > 0 ? availableFormats[0].id : '';
+        error = '';
+        generating = false;
+        progressPhase = 'idle';
+        currentChapter = 0;
+        totalChapters = 0;
+        completedChapters = 0;
+        currentChapterTitle = '';
+        savedToLibrary = false;
+        finalElapsedSeconds = 0;
+    }
+
     function getFormatSelectedLabel(): string {
         return availableFormats.find((f: any) => f.id === selectedFormat)?.label || 'Document';
+    }
+
+    /**
+     * Converts markdown text to styled HTML for the document preview.
+     * Handles headings, bold, italic, code, lists, blockquotes, horizontal rules, and paragraphs.
+     */
+    function renderMarkdown(md: string): string {
+        // Process line by line for block elements
+        const lines = md.split('\n');
+        let html = '';
+        let inList = false;
+        let listType: 'ul' | 'ol' = 'ul';
+        let inBlockquote = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
+
+            // Horizontal rule
+            if (/^---+$/.test(line.trim()) || /^\*\*\*+$/.test(line.trim())) {
+                if (inList) { html += `</${listType}>`; inList = false; }
+                if (inBlockquote) { html += '</blockquote>'; inBlockquote = false; }
+                html += '<hr class="my-8 border-t-2 border-[#f0e8da]">';
+                continue;
+            }
+
+            // Headings
+            if (line.startsWith('### ')) {
+                if (inList) { html += `</${listType}>`; inList = false; }
+                if (inBlockquote) { html += '</blockquote>'; inBlockquote = false; }
+                html += `<h3 class="text-lg font-bold text-[#3d3526] mt-8 mb-3">${inlineFormat(line.slice(4))}</h3>`;
+                continue;
+            }
+            if (line.startsWith('## ')) {
+                if (inList) { html += `</${listType}>`; inList = false; }
+                if (inBlockquote) { html += '</blockquote>'; inBlockquote = false; }
+                html += `<h2 class="text-2xl font-serif font-bold text-[#2d2518] mt-12 mb-4">${inlineFormat(line.slice(3))}</h2>`;
+                continue;
+            }
+            if (line.startsWith('# ')) {
+                if (inList) { html += `</${listType}>`; inList = false; }
+                if (inBlockquote) { html += '</blockquote>'; inBlockquote = false; }
+                html += `<h1 class="text-3xl lg:text-4xl font-serif font-bold text-[#1a1a1a] border-b-2 border-[#f0e8da] pb-6 mb-10">${inlineFormat(line.slice(2))}</h1>`;
+                continue;
+            }
+
+            // Blockquotes
+            if (line.startsWith('> ')) {
+                if (inList) { html += `</${listType}>`; inList = false; }
+                if (!inBlockquote) {
+                    html += '<blockquote class="border-l-4 border-[#d4a853] pl-5 py-3 my-6 bg-[#fdfaf6] rounded-r-lg italic text-[#5a4f3e]">';
+                    inBlockquote = true;
+                }
+                html += `<p class="mb-2">${inlineFormat(line.slice(2))}</p>`;
+                continue;
+            } else if (inBlockquote) {
+                html += '</blockquote>';
+                inBlockquote = false;
+            }
+
+            // Unordered list items
+            if (/^\s*[-*]\s+/.test(line)) {
+                if (!inList || listType !== 'ul') {
+                    if (inList) html += `</${listType}>`;
+                    html += '<ul class="my-5 space-y-1.5">';
+                    inList = true;
+                    listType = 'ul';
+                }
+                const text = line.replace(/^\s*[-*]\s+/, '');
+                html += `<li class="ml-6 list-disc pl-2 text-[#3d3526] leading-relaxed">${inlineFormat(text)}</li>`;
+                continue;
+            }
+
+            // Ordered list items
+            if (/^\s*\d+\.\s+/.test(line)) {
+                if (!inList || listType !== 'ol') {
+                    if (inList) html += `</${listType}>`;
+                    html += '<ol class="my-5 space-y-1.5">';
+                    inList = true;
+                    listType = 'ol';
+                }
+                const text = line.replace(/^\s*\d+\.\s+/, '');
+                html += `<li class="ml-6 list-decimal pl-2 text-[#3d3526] leading-relaxed">${inlineFormat(text)}</li>`;
+                continue;
+            }
+
+            // Close list if not a list item
+            if (inList) {
+                html += `</${listType}>`;
+                inList = false;
+            }
+
+            // Empty lines
+            if (!line.trim()) {
+                continue;
+            }
+
+            // Regular paragraphs
+            html += `<p class="mb-5 leading-relaxed text-[#4a4235]">${inlineFormat(line)}</p>`;
+        }
+
+        // Close any open tags
+        if (inList) html += `</${listType}>`;
+        if (inBlockquote) html += '</blockquote>';
+
+        return html;
+    }
+
+    /** Process inline markdown formatting: bold, italic, code, links */
+    function inlineFormat(text: string): string {
+        return text
+            .replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold"><em class="italic">$1</em></strong>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-[#1a1a1a]">$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em class="italic text-[#3d3526]">$1</em>')
+            .replace(/`(.+?)`/g, '<code class="bg-[#f0e8da]/50 text-[#8B6914] px-1.5 py-0.5 rounded-md text-[0.9em] font-mono">$1</code>')
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-[#8B6914] underline hover:text-[#a67c1a]" target="_blank" rel="noopener">$1</a>');
     }
 </script>
 
@@ -318,7 +522,7 @@
                     </div>
                 </div>
             {/each}
-            
+
             {#if isChatting}
                  <div class="flex flex-col max-w-[85%] mr-auto items-start">
                     <span class="text-[11px] font-medium text-[#c4b89e] mb-1.5 uppercase tracking-wide px-1">Editor AI</span>
@@ -333,16 +537,16 @@
 
         <div class="p-4 border-t border-[#e8e0d2] bg-white">
             <form onsubmit={(e) => { e.preventDefault(); handleChatSubmit(); }} class="relative flex items-end shadow-xs border border-[#e0d8c8] rounded-2xl bg-[#fdfaf6] focus-within:border-[#d4a853] focus-within:ring-1 focus-within:ring-[#d4a853] transition-all">
-                <textarea 
+                <textarea
                     bind:value={inputMessage}
                     onkeydown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSubmit(); } }}
-                    placeholder="Describe your book idea..." 
+                    placeholder="Describe your book idea..."
                     class="w-full bg-transparent border-none focus:ring-0 resize-none py-3.5 pl-4 pr-12 text-sm text-[#1a1a1a] placeholder:text-[#bfb49e] max-h-32 min-h-[52px]"
                     rows="1"
                     disabled={isChatting || generating}
                 ></textarea>
                 <div class="absolute right-2 bottom-2 z-20">
-                    <button type="submit" aria-label="Send message" class="w-9 h-9 rounded-xl bg-[#8B6914] text-white flex items-center justify-center hover:bg-[#a67c1a] shadow-md transition-all active:scale-95 cursor-pointer">
+                    <button type="submit" aria-label="Send message" disabled={isChatting || generating || !inputMessage.trim()} class="w-9 h-9 rounded-xl bg-[#8B6914] text-white flex items-center justify-center hover:bg-[#a67c1a] shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="shrink-0" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </div>
@@ -359,7 +563,12 @@
         {#if error && !generating}
             <div class="w-full max-w-2xl bg-[#fef2f2] border border-[#fecaca] rounded-xl p-4 mb-6 shadow-xs relative z-10 flex gap-3">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2" class="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <p class="text-[#7f1d1d] text-sm">{error}</p>
+                <div class="flex-1">
+                    <p class="text-[#7f1d1d] text-sm">{error}</p>
+                </div>
+                <button onclick={() => error = ''} class="text-[#b91c1c] hover:text-[#7f1d1d] transition-colors cursor-pointer shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
         {/if}
 
@@ -395,11 +604,14 @@
                         <div class="grid grid-cols-2 gap-5">
                             <div class="space-y-2">
                                 <label for="format" class="text-xs font-semibold uppercase tracking-wider text-[#a89b85]">Content Format</label>
-                                <select id="format" bind:value={selectedFormat} class="w-full px-4 py-3 bg-[#fdfaf6] border border-[#e0d8c8] rounded-xl text-[#3d3526] text-sm focus:border-[#d4a853] outline-none appearance-none">
+                                <select id="format" bind:value={selectedFormat} class="w-full px-4 py-3 bg-[#fdfaf6] border border-[#e0d8c8] rounded-xl text-[#3d3526] text-sm focus:border-[#d4a853] outline-none appearance-none cursor-pointer">
                                     {#each availableFormats as fmt}
                                         <option value={fmt.id}>{fmt.label}</option>
                                     {/each}
                                 </select>
+                                {#if selectedFormatDescription}
+                                    <p class="text-xs text-[#a89b85] italic">{selectedFormatDescription}</p>
+                                {/if}
                             </div>
                             <div class="space-y-2">
                                 <label for="title" class="text-xs font-semibold uppercase tracking-wider text-[#a89b85]">Custom Title (Optional)</label>
@@ -409,8 +621,8 @@
 
                         <div class="pt-6 mt-4 flex items-center justify-between border-t border-[#f0e8da]">
                             <p class="text-xs text-[#8a7e6b]">Estimated length: <strong class="text-[#3d3526]">{pageRange.max} pages</strong> ({qualityTier})</p>
-                            
-                            <button onclick={handleGenerate} disabled={!canGenerate} class="flex items-center gap-2 bg-linear-to-r from-[#1a1a1a] to-[#2d2518] text-white px-6 py-3 rounded-xl font-medium text-sm hover:translate-y-[-2px] hover:shadow-lg transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed">
+
+                            <button onclick={handleGenerate} disabled={!canGenerate || !topic.trim()} class="flex items-center gap-2 bg-linear-to-r from-[#1a1a1a] to-[#2d2518] text-white px-6 py-3 rounded-xl font-medium text-sm hover:translate-y-[-2px] hover:shadow-lg transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed cursor-pointer">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v6l3-2"/><path d="M12 3v6l-3-2"/><circle cx="12" cy="16" r="5"/></svg>
                                 Render Final Document
                             </button>
@@ -423,7 +635,7 @@
             <!-- Generating Overlay (Inline) -->
             <div bind:this={generatingOverlayRef} class="w-full max-w-xl bg-white border border-[#e8e0d2] rounded-[24px] p-10 flex flex-col items-center text-center shadow-[0_20px_60px_rgba(139,105,20,0.08)] relative z-10 overflow-hidden">
                 <div class="absolute inset-0 opacity-[0.02]" style="background: radial-gradient(circle at center, #8B6914 0%, transparent 70%);"></div>
-                
+
                 <div class="w-20 h-20 mb-8 relative">
                     <div class="absolute inset-0 rounded-full border-4 border-[#f0e8da]"></div>
                     <div class="absolute inset-0 rounded-full border-4 border-[#d4a853] border-t-transparent animate-spin"></div>
@@ -438,14 +650,17 @@
                 <!-- Phase Track -->
                 <div class="w-full max-w-sm mt-10">
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold tracking-wider uppercase {progressPhase === 'outlining' ? 'text-[#8B6914]' : 'text-[#c4b89e]'}">Architecture</span>
-                        <span class="text-[10px] font-bold tracking-wider uppercase {progressPhase === 'writing' ? 'text-[#8B6914]' : 'text-[#c4b89e]'}">Writing</span>
+                        <span class="text-[10px] font-bold tracking-wider uppercase {progressPhase === 'outlining' ? 'text-[#8B6914]' : progressPhase === 'writing' || progressPhase === 'finalizing' ? 'text-[#6d8a50]' : 'text-[#c4b89e]'}">Architecture</span>
+                        <span class="text-[10px] font-bold tracking-wider uppercase {progressPhase === 'writing' ? 'text-[#8B6914]' : progressPhase === 'finalizing' ? 'text-[#6d8a50]' : 'text-[#c4b89e]'}">Writing</span>
                         <span class="text-[10px] font-bold tracking-wider uppercase {progressPhase === 'finalizing' ? 'text-[#8B6914]' : 'text-[#c4b89e]'}">Polishing</span>
                     </div>
                     <div class="h-1.5 w-full bg-[#f0e8da] rounded-full overflow-hidden">
-                        <div class="h-full bg-linear-to-r from-[#d4a853] to-[#8B6914] transition-all duration-700 ease-out" 
-                             style="width: {progressPhase === 'outlining' ? '20%' : progressPhase === 'writing' ? '60%' : progressPhase === 'finalizing' ? '90%' : '100%'}"></div>
+                        <div class="h-full bg-linear-to-r from-[#d4a853] to-[#8B6914] transition-all duration-700 ease-out rounded-full"
+                             style="width: {progressPercent}%"></div>
                     </div>
+                    {#if totalChapters > 0}
+                        <p class="text-[10px] text-[#a89b85] mt-2 text-right">{completedChapters}/{totalChapters} chapters complete</p>
+                    {/if}
                 </div>
 
                 {#if progressPhase === 'writing' && currentChapter > 0}
@@ -472,11 +687,28 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-bold text-[#1a1a1a] font-serif truncate max-w-[300px]">{customTitle || topic || 'Generated Document'}</h2>
-                            <p class="text-xs font-medium text-[#8B6914] uppercase tracking-wider">{getFormatSelectedLabel()}</p>
+                            <div class="flex items-center gap-3">
+                                <p class="text-xs font-medium text-[#8B6914] uppercase tracking-wider">{getFormatSelectedLabel()}</p>
+                                {#if finalElapsedSeconds > 0}
+                                    <span class="text-[10px] text-[#a89b85]">• Generated in {formatTime(finalElapsedSeconds)}</span>
+                                {/if}
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button onclick={downloadEbook} disabled={isGeneratingPdf} class="px-4 py-2 border border-[#e8e0d2] hover:bg-[#f8f5ed] rounded-lg text-xs font-semibold text-[#3d3526] transition-colors flex items-center gap-1.5 disabled:opacity-50">
+                        <button onclick={saveToLibrary} disabled={isSavingToLibrary || savedToLibrary} class="px-4 py-2 border border-[#e8e0d2] hover:bg-[#f8f5ed] rounded-lg text-xs font-semibold text-[#3d3526] transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+                            {#if isSavingToLibrary}
+                                <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
+                                Saving...
+                            {:else if savedToLibrary}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6d8a50" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                Saved
+                            {:else}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save to Library
+                            {/if}
+                        </button>
+                        <button onclick={downloadEbook} disabled={isGeneratingPdf} class="px-4 py-2 border border-[#e8e0d2] hover:bg-[#f8f5ed] rounded-lg text-xs font-semibold text-[#3d3526] transition-colors flex items-center gap-1.5 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                             {#if isGeneratingPdf}
                                 <svg class="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="15"/></svg>
                                 Rendering...
@@ -485,7 +717,7 @@
                                 PDF
                             {/if}
                         </button>
-                        <button onclick={() => { success = false; ebookContent = ''; }} class="px-4 py-2 bg-linear-to-b from-[#1a1a1a] to-[#2d2518] rounded-lg text-xs font-semibold text-white shadow-xs hover:translate-y-[-1px] transition-all">
+                        <button onclick={startNew} class="px-4 py-2 bg-linear-to-b from-[#1a1a1a] to-[#2d2518] rounded-lg text-xs font-semibold text-white shadow-xs hover:translate-y-[-1px] transition-all cursor-pointer">
                             Start New
                         </button>
                     </div>
@@ -493,20 +725,7 @@
 
                 <!-- Document Content View -->
                 <div class="flex-1 overflow-y-auto p-8 md:p-12 prose-preview bg-white">
-                    {@html ebookContent
-                            .replace(/^# (.+)$/gm, '<h1 class="text-3xl lg:text-4xl font-serif font-bold text-[#1a1a1a] border-b-2 border-[#f0e8da] pb-6 mb-10">$1</h1>')
-                            .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-serif font-bold text-[#2d2518] mt-12 mb-4">$1</h2>')
-                            .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-[#3d3526] mt-8 mb-3">$1</h3>')
-                            .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-[#1a1a1a]">$1</strong>')
-                            .replace(/\*(.+?)\*/g, '<em class="italic text-[#3d3526]">$1</em>')
-                            .replace(/`(.+?)`/g, '<code class="bg-[#f0e8da]/50 text-[#8B6914] px-1.5 py-0.5 rounded-md text-[0.9em] font-mono">$1</code>')
-                            .replace(/^\s*[-*]\s+(.+)$/gm, '<li class="ml-6 list-disc mb-2 pl-2 text-[#3d3526] leading-relaxed">$1</li>')
-                            .replace(/^\s*\d+\.\s+(.+)$/gm, '<li class="ml-6 list-decimal mb-2 pl-2 text-[#3d3526] leading-relaxed">$1</li>')
-                            .replace(/^(<li.*<\/li>\s*)+/gm, '<ul class="my-5">$&</ul>')
-                            .replace(/\n\n/g, '</p><p class="mb-5 leading-relaxed text-[#4a4235]">')
-                            .replace(/\n/g, '<br>')
-                            .replace(/^<p>/, '<p class="mb-5 leading-relaxed text-[#4a4235]">')
-                    }
+                    {@html renderMarkdown(ebookContent)}
                 </div>
             </div>
         {/if}
