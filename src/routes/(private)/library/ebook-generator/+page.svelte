@@ -546,7 +546,7 @@
                     disabled={isChatting || generating}
                 ></textarea>
                 <div class="absolute right-2 bottom-2 z-20">
-                    <button type="submit" aria-label="Send message" disabled={isChatting || generating || !inputMessage.trim()} class="w-9 h-9 rounded-xl bg-[#8B6914] text-white flex items-center justify-center hover:bg-[#a67c1a] shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
+                    <button type="submit" aria-label="Send message" disabled={isChatting || generating} class="w-9 h-9 rounded-xl bg-[#8B6914] text-white flex items-center justify-center hover:bg-[#a67c1a] shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="shrink-0" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
                 </div>
@@ -566,7 +566,7 @@
                 <div class="flex-1">
                     <p class="text-[#7f1d1d] text-sm">{error}</p>
                 </div>
-                <button onclick={() => error = ''} class="text-[#b91c1c] hover:text-[#7f1d1d] transition-colors cursor-pointer shrink-0">
+                <button onclick={() => error = ''} aria-label="Dismiss error" class="text-[#b91c1c] hover:text-[#7f1d1d] transition-colors cursor-pointer shrink-0">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>

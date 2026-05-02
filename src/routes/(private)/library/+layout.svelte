@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from "$app/state";
     import { getUserState } from "$lib/state/user-state.svelte";
 
 	import Header from '$lib/components/library/Header.svelte';
@@ -22,7 +23,7 @@
     <SideBar currentPlan={activePlan} />
     <div class="flex-1 flex flex-col min-w-0 bg-[#fdfaf6]">
         <Header />
-        <div class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
+        <div class="flex-1 overflow-y-auto {page.url.pathname === '/library/ebook-generator' ? 'p-0' : 'p-4 sm:p-6 md:p-8'}">
             {@render children()}
         </div>
     </div>

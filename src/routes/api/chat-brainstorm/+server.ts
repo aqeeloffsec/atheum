@@ -140,6 +140,14 @@ Guidelines:
         });
     } catch (error: any) {
         console.error('[chat-brainstorm] Error:', error.message);
-        return json({ error: error.message || 'Failed to communicate with AI helper' }, { status: 500 });
+        console.error('[chat-brainstorm] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+
+        // Detect OpenRouter auth/account issues
+        const msg = error.message || '';
+        if (msg.includes('User not found') || msg.includes('401') || msg.includes('403') || msg.includes('Invalid API key')) {
+            return json({ error: 'AI service authentication failed. Please check that the OPENROUTER_API_KEY is valid and the account is active.' }, { status: 500 });
+        }
+
+        return json({ error: msg || 'Failed to communicate with AI helper' }, { status: 500 });
     }
 };
