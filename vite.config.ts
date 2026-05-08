@@ -7,5 +7,22 @@ export default defineConfig({
     plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
     ssr: {
 		noExternal: ['gsap']
-	}
+	},
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: (id) => {
+                    if (id.includes('gsap')) {
+                        return 'gsap';
+                    }
+                    if (id.includes('supabase')) {
+                        return 'supabase';
+                    }
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
+                }
+            }
+        }
+    }
 });

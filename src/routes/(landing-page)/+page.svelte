@@ -1,76 +1,87 @@
 <script lang="ts">
 	import Cover from "$lib/components/home/Cover.svelte";
-    import Features from "$lib/components/home/Features.svelte";
-	import Stats from "$lib/components/home/Stats.svelte";
-    import HowItWorks from "$lib/components/home/HowItWorks.svelte";
-	import Testimonials from "$lib/components/home/Testimonials.svelte";
-	import Pricing from "$lib/components/home/Pricing.svelte";
-    import Faq from "$lib/components/home/Faq.svelte";
-	import BeginYourJourney from "$lib/components/home/BeginYourJourney.svelte";
-
-	import { navigationState } from "$lib/state/navigation-state.svelte";
+    import { navigationState } from "$lib/state/navigation-state.svelte";
     import gsap from 'gsap';
+    import ScrollTrigger from 'gsap/ScrollTrigger';
 
 	const navState = navigationState;
 	let { data } = $props();
 	
 	let activePlan = $derived(data.subscription?.plan_id || 'free');
 
+    // UI State for lazy loaded components
+    let Stats = $state<any>(null);
+    let Features = $state<any>(null);
+    let HowItWorks = $state<any>(null);
+    let Testimonials = $state<any>(null);
+    let Pricing = $state<any>(null);
+    let Faq = $state<any>(null);
+    let BeginYourJourney = $state<any>(null);
+
     let loaded = $state(false);
 
     $effect(() => {
         gsap.globalTimeline.pause();
+        loaded = true;
+        gsap.globalTimeline.resume();
+        
+        // Refresh ScrollTrigger after a bit to account for layout shifts
+        const timer = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 1000);
 
-        const handleLoad = () => {
-            loaded = true;
-            gsap.globalTimeline.resume();
-        };
+        // Load other components in background
+        Promise.all([
+            import("$lib/components/home/Stats.svelte").then(m => Stats = m.default),
+            import("$lib/components/home/Features.svelte").then(m => Features = m.default),
+            import("$lib/components/home/HowItWorks.svelte").then(m => HowItWorks = m.default),
+            import("$lib/components/home/Testimonials.svelte").then(m => Testimonials = m.default),
+            import("$lib/components/home/Pricing.svelte").then(m => Pricing = m.default),
+            import("$lib/components/home/Faq.svelte").then(m => Faq = m.default),
+            import("$lib/components/home/BeginYourJourney.svelte").then(m => BeginYourJourney = m.default),
+        ]).then(() => {
+             // Second refresh after all components are loaded
+             setTimeout(() => ScrollTrigger.refresh(), 500);
+        });
 
-        if (document.readyState === 'complete') {
-            handleLoad();
-        } else {
-            window.addEventListener('load', handleLoad);
-        }
-
-        return () => {
-            gsap.globalTimeline.resume();
-            window.removeEventListener('load', handleLoad);
-        };
-    });
-    $effect(() => {
-        if (!loaded) {
-            document.body.classList.add("overflow-hidden");
-        } else {
-            document.body.classList.remove("overflow-hidden");
-        }
+        return () => clearTimeout(timer);
     });
 </script>
 
-<div class="fixed inset-0 z-100 bg-[#fdfaf6] flex items-center justify-center transition-opacity duration-700 ease-in-out {!loaded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}">
-    {#if !loaded}
-        <div class="flex flex-col items-center gap-4">
-            <svg class="w-10 h-10 text-[#1a232e] animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
-                <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span class="font-serif tracking-widest text-[10px] uppercase font-bold text-[#1a232e] animate-pulse">Atheum</span>
-        </div>
+<Cover/>
+
+{#if Stats}
+    <Stats stats={data.stats} />
+{/if}
+
+<div bind:this={navState.features}>
+	{#if Features}
+        <Features />
     {/if}
 </div>
 
-<Cover/>
-<Stats stats={data.stats} />
-<div bind:this={navState.features}>
-	<Features />
-</div>
 <div bind:this={navState.howItWorks}>
-	<HowItWorks />
+	{#if HowItWorks}
+        <HowItWorks />
+    {/if}
 </div>
-<Testimonials />
+
+{#if Testimonials}
+    <Testimonials />
+{/if}
+
 <div bind:this={navState.pricing}>
-	<Pricing currentPlan={activePlan} />
+	{#if Pricing}
+        <Pricing currentPlan={activePlan} />
+    {/if}
 </div>
+
 <div bind:this={navState.faq}>
-	<Faq />
+	{#if Faq}
+        <Faq />
+    {/if}
 </div>
-<BeginYourJourney />
+
+{#if BeginYourJourney}
+    <BeginYourJourney />
+{/if}

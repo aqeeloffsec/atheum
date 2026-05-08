@@ -1,20 +1,49 @@
 <script lang="ts">
 	import gsap from 'gsap';
     import ScrollToPlugin from 'gsap/ScrollToPlugin';
-	//import { gsap } from 'gsap/dist/gsap';
-	//import { ScrollToPlugin } from 'gsap/dist/ScrollToPlugin';
+    import ScrollTrigger from 'gsap/ScrollTrigger';
+    import Lenis from 'lenis';
 
 	import Header from '$lib/components/header/Header.svelte';
 	import Footer from '$lib/components/footer/Footer.svelte';
 
-	gsap.registerPlugin(ScrollToPlugin);
+	gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 
 	let { children } = $props();
+
+    $effect(() => {
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        // Synchronize Lenis with GSAP ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+
+        gsap.ticker.lagSmoothing(0);
+
+        return () => {
+            lenis.destroy();
+            gsap.ticker.remove((time) => {
+                lenis.raf(time * 1000);
+            });
+        };
+    });
 
 	const scrollToSection = (section: HTMLElement | null) => {
 		if (!section) return;
 
-		// Smooth scroll function
+		// Smooth scroll function using GSAP (Lenis will handle the frame loop)
 		gsap.to(window, {
 			duration: 1.2,
 			ease: 'power3.out',
