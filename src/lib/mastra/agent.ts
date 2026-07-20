@@ -1,10 +1,10 @@
 import { Agent } from '@mastra/core/agent';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { env } from '$env/dynamic/private';
 import type { FormatType } from '$lib/config/plan-config';
 
-const openrouter = createOpenRouter({
-  apiKey: env.OPENROUTER_API_KEY || '',
+const googleAI = createGoogleGenerativeAI({
+  apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY || env.GOOGLE_API_KEY || env.OPENROUTER_API_KEY || '',
 });
 
 // Base system instructions for the publishing AI agent
@@ -206,5 +206,5 @@ export const ebookAgent = new Agent({
   id: 'ebook-generator-agent',
   name: 'Atheum Publishing AI',
   instructions: BASE_INSTRUCTIONS,
-  model: openrouter('nvidia/nemotron-3-super-120b-a12b:free'), // 100% free model with unlimited free context
+  model: googleAI('gemini-2.5-pro'),
 });

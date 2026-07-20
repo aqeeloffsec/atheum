@@ -3,6 +3,7 @@
     import gsap from 'gsap';
 
     import Input from '$lib/components/shared/Input.svelte';
+    import AtheumLogo from '$lib/components/shared/AtheumLogo.svelte';
 
     let signUpContainer = $state();
 
@@ -35,16 +36,8 @@
 </script>
     
 <div bind:this={signUpContainer} class="flex-1 flex flex-col items-center justify-center p-6 md:p-10 overflow-y-auto">
-    <div class="lg:hidden flex items-center gap-2.5 mb-10 self-center">
-        <div class="bg-[#1a232e] p-1.5 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-4 h-4 text-[#fdfaf6]" aria-hidden="true">
-                <path d="m16 6 4 14"></path>
-                <path d="M12 6v14"></path>
-                <path d="M8 8v12"></path>
-                <path d="M4 4v16"></path>
-            </svg>
-        </div>
-        <span class="font-serif font-bold text-[#1a232e] text-lg">Atheum</span>
+    <div class="lg:hidden mb-10 self-center">
+        <AtheumLogo />
     </div>
     <div class="w-full max-w-sm">
         <div style="opacity: 1; transform: none;">
@@ -56,12 +49,8 @@
             </a>
             <div class="mb-8">
                 <div class="inline-flex items-center gap-2 bg-[#1a232e]/6 text-[#1a232e] px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles w-3 h-3" aria-hidden="true">
-                        <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path>
-                        <path d="M20 2v4"></path>
-                        <path d="M22 4h-4"></path>
-                        <circle cx="4" cy="20" r="2"></circle>
-                    </svg> Free account
+                    <div class="w-2 h-2 rounded-full bg-linear-to-r from-purple-500 to-amber-500 animate-pulse"></div>
+                    Free account
                 </div>
                 <h1 class="font-serif text-3xl font-bold text-[#1a232e] mb-1">Create account</h1>
                 <p class="text-gray-500 text-sm">Already a member? 

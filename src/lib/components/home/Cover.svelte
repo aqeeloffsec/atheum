@@ -298,9 +298,9 @@
         bind:this={scrollHintRef}
         onclick={scrollToFeatures}
         aria-label="scroll"
-        class="bottom-4 -translate-x-1/2 flex flex-col items-center gap-2 text-[#1a232e]/60 hover:text-[#1a232e] transition-colors cursor-pointer border-none bg-transparent group z-20 will-change-transform"
+        class="bottom-4 flex flex-col items-center gap-2 text-[#1a232e]/60 hover:text-[#1a232e] transition-colors cursor-pointer border-none bg-transparent group z-20 will-change-transform"
     >
-        <div class="w-16 h-16 flex items-center justify-center transition-all duration-300">
+        <div class="w-18 h-18 flex items-center justify-center transition-all duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 animate-bounce mt-1" aria-hidden="true">
                 <path d="m6 9 6 6 6-6"></path>
             </svg>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import gsap from 'gsap';
+    import AtheumLogo from '$lib/components/shared/AtheumLogo.svelte';
 
     let forgotPasswordContainer = $state();
 
@@ -27,16 +28,8 @@
 </script>
     
 <div bind:this={forgotPasswordContainer} class="flex-1 flex flex-col items-center justify-center p-6 md:p-10 overflow-y-auto">
-    <div class="lg:hidden flex items-center gap-2.5 mb-10 self-start">
-        <div class="bg-[#1a232e] p-1.5 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library w-4 h-4 text-[#fdfaf6]" aria-hidden="true">
-                <path d="m16 6 4 14"></path>
-                <path d="M12 6v14"></path>
-                <path d="M8 8v12"></path>
-                <path d="M4 4v16"></path>
-            </svg>
-        </div>
-        <span class="font-serif font-bold text-[#1a232e] text-lg">Atheum</span>
+    <div class="lg:hidden mb-10 self-start">
+        <AtheumLogo />
     </div>
     <div class="w-full max-w-sm">
         <div style="opacity: 1; transform: none;">

@@ -1,12 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText } from 'ai';
 import { env } from '$env/dynamic/private';
 import type { FormatType } from '$lib/config/plan-config';
 
-const openrouter = createOpenRouter({
-    apiKey: env.OPENROUTER_API_KEY || ''
+const googleAI = createGoogleGenerativeAI({
+    apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY || env.GOOGLE_API_KEY || env.OPENROUTER_API_KEY || ''
 });
 
 // Define the structure for extracted data from AI's natural reply
@@ -85,8 +85,8 @@ export const POST: RequestHandler = async ({ request, locals: { session, user } 
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!env.OPENROUTER_API_KEY || env.OPENROUTER_API_KEY === '') {
-        return json({ error: 'OpenRouter API key is not configured.' }, { status: 500 });
+    if (!env.GOOGLE_GENERATIVE_AI_API_KEY && !env.GOOGLE_API_KEY && !env.OPENROUTER_API_KEY) {
+        return json({ error: 'Google AI API key is not configured.' }, { status: 500 });
     }
 
     try {
@@ -111,7 +111,7 @@ Guidelines:
 - Do NOT output JSON or structured data — write naturally like an editor would`;
 
         const response = await generateText({
-            model: openrouter('nvidia/nemotron-3-super-120b-a12b:free'),
+            model: googleAI('gemini-2.5-flash'),
             system: SYSTEM_PROMPT,
             maxOutputTokens: 400,
             temperature: 0.7,
@@ -142,10 +142,10 @@ Guidelines:
         console.error('[chat-brainstorm] Error:', error.message);
         console.error('[chat-brainstorm] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
 
-        // Detect OpenRouter auth/account issues
+        // Detect Google AI auth/account issues
         const msg = error.message || '';
-        if (msg.includes('User not found') || msg.includes('401') || msg.includes('403') || msg.includes('Invalid API key')) {
-            return json({ error: 'AI service authentication failed. Please check that the OPENROUTER_API_KEY is valid and the account is active.' }, { status: 500 });
+        if (msg.includes('User not found') || msg.includes('401') || msg.includes('403') || msg.includes('Invalid API key') || msg.includes('API_KEY_INVALID')) {
+            return json({ error: 'AI service authentication failed. Please check that the Google AI API key is valid.' }, { status: 500 });
         }
 
         return json({ error: msg || 'Failed to communicate with AI helper' }, { status: 500 });

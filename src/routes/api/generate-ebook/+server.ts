@@ -73,7 +73,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, sessio
 		return json({ error: 'Topic is required' }, { status: 400 });
 	}
 
-	if (!env.OPENROUTER_API_KEY || env.OPENROUTER_API_KEY === '') {
+	if (!env.GOOGLE_GENERATIVE_AI_API_KEY && !env.GOOGLE_API_KEY && !env.OPENROUTER_API_KEY) {
 		return json({ error: 'AI API key is not configured.' }, { status: 500 });
 	}
 
